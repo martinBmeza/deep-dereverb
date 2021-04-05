@@ -5,7 +5,6 @@ import sys, os
 sys.path.append(MAIN_PATH)
 import tensorflow as tf
 import tensorflow.keras.layers as tfkl
-<<<<<<< HEAD
 import numpy as np
 import sys
 from model.capas import *
@@ -124,7 +123,6 @@ def dereverb_autoencoder():
     modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),loss=mean_loss) #defino el optimizador y le indico que use laue defini
     return modelo
 
-=======
 import numpy as np 
 from model.capas import Spectrogram, TranslateRange, MSE
 
@@ -162,7 +160,6 @@ def basic_autoencoder():
     model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.01),loss=mean_loss)
 
     return model
->>>>>>> f1ab415a1a3dd06076f15ec13bc8b4ea6610f9cd
 
 
 

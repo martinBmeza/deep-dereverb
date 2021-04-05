@@ -11,7 +11,7 @@ sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
 #Data generators
 from model.data_loader import build_generators
 loadpath = MAIN_PATH + '/data/data_ready_img/'
-params = {'dim': (256,257), 'batch_size': 2, 'shuffle': True, 'path' : loadpath}
+params = {'dim': (257,256), 'batch_size': 16, 'shuffle': True, 'path' : loadpath}
 training_generator, validation_generator = build_generators(MAIN_PATH, params)
 
 #defino el modelo
@@ -22,6 +22,6 @@ modelo.summary()
 #callbacks
 
 
-#entrenando 
-history = modelo.fit(training_generator, epochs= 10)
+#entrenando                                                                                                                                                                 
+history = modelo.fit(training_generator, workers=6, epochs= 10)
 

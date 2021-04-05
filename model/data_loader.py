@@ -51,15 +51,15 @@ class DataGenerator(keras.utils.Sequence):
         x_clean = np.empty((self.batch_size, *self.dim))
         x_reverb = np.empty((self.batch_size, *self.dim))
         Y = np.empty((self.batch_size, *self.dim))
-        print('REVER SHAPE', x_reverb.shape)
-        print('CLEAN SHAPE', x_clean.shape)
+        #print('REVER SHAPE', x_reverb.shape)
+        #print('CLEAN SHAPE', x_clean.shape)
         # Generate data
         for i, ID in enumerate(list_IDs_temp):
             #Cargo los audios
             [clean, reverb] = np.load(self.path + str(ID) + '.npy')
-            x_clean[i] = clean
-            x_reverb[i] = reverb
-            Y[i] = reverb
+            x_clean[i] = clean.T
+            x_reverb[i] = reverb.T
+            Y[i] = reverb.T
 
         return [x_clean, x_reverb], Y
 
