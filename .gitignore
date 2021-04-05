@@ -1,0 +1,14 @@
+# If the pattern doesn’t start with a slash, it matches files and directories in any directory or subdirectory.
+# If the pattern ends with a slash, it matches only directories. When a directory is ignored, all of its files and subdirectories are also ignored
+data/clean/*
+data/noisy/*
+**/*.npy
+**/*.pyc
+*.pyc
+**/*.swp
+**/*.swo
+*.swp 
+*.swo
+*~
+.bak/
+notebooks/
