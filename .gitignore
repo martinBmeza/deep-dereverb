@@ -13,3 +13,5 @@ data/
 *~
 .bak/
 notebooks/
+model/ckpts/*
+tb_logs/
