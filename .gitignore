@@ -15,4 +15,4 @@ data/.rir/
 notebooks/
 model/ckpts/*
 tb_logs/
-.ipynb
+*.ipynb
