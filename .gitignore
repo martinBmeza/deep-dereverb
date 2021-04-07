@@ -4,7 +4,6 @@ data/speech/
 data/rir/
 data/.speech/
 data/.rir/
-*
 **/*.npy
 **/*.pyc
 *.pyc
@@ -12,7 +11,6 @@ data/.rir/
 **/*.swo
 *.swp 
 *.swo
-*~
 .bak/
 notebooks/
 model/ckpts/*
