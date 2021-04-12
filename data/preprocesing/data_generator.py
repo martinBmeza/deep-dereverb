@@ -70,12 +70,9 @@ def framing(data, winsize=256, step=256, dim=1):
     to_pad = winsize - resto
     out[-1,:,:resto] = data[:, n_frames*winsize: n_frames*winsize + resto]
     out[-1,:,resto:] = np.zeros((data.shape[0],to_pad))
-    out = np.expand_dims(out, axis=(3))
-    #shape --> (frames, freq, time, channels)
+    #shape --> (frames, freq, time)
     return out
 
-#mask_comp = np.expand_dims(mask_comp, axis=(0,3))
-#magspec_reverb = np.expand_dims(magspec_reverb, axis=(0,3))
 
 def generate_inputs(speech_path, rir_path):
 

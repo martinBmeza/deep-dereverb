@@ -38,7 +38,7 @@ class DataGenerator(keras.utils.Sequence):
     def __len__(self):
 
         'Denotes the number of batches per epoch'
-        return self.number_rir * self.number_speech
+        return 1
        # return int(np.floor(len(self.list_IDs) / self.batch_size))
 
     def __getitem__(self, index):
@@ -46,6 +46,7 @@ class DataGenerator(keras.utils.Sequence):
         # Generate indexes of the batch
         index_speech = random.randint(0, self.number_speech-1)
         index_rir = random.randint(0, self.number_rir-1)
+
         # Generate data
         X, y = self.__data_generation(index_speech, index_rir)
 
