@@ -82,7 +82,7 @@ def build_generators(params):
     #seleccion random de sets
     audio_numbers = list(range(0, len(audio_list)))
     random.shuffle(audio_numbers)
-    train_n = int(len(audio_numbers)*0.8)
+    train_n = int(len(audio_numbers)*0.9)
     validation_n = len(audio_numbers) - train_n
     
     partition = {'train' : audio_numbers[:train_n], 'validation' : audio_numbers[train_n:]}

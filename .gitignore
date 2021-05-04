@@ -16,3 +16,4 @@ notebooks/
 model/ckpts/*
 tb_logs/
 *.ipynb
+resultados_parciales/

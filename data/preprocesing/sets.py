@@ -18,13 +18,13 @@ save_path = "/mnt/datasets/npy_data/"
 #listo las bases de datos a usar 
 
 #SPEECH
-speech_list = glob.glob(os.path.join(path_datos, 'clean_voice/LibriSpeech/dev-clean', '**/*.flac'), recursive=True)
-speec_duraciones=[sf.info(audio).frames for audio in speech_list]
-tiempo_speech = np.sum(speec_duraciones)/sf.info(speech_list[0]).samplerate
+speech_list = glob.glob(os.path.join(path_datos, 'clean_voice/dev-clean', '**/*.flac'), recursive=True)
+speech_duraciones=[sf.info(audio).frames for audio in speech_list]
+tiempo_speech = np.sum(speech_duraciones)/sf.info(speech_list[0]).samplerate
 print('En total hay {:.2f} horas de speech'.format(tiempo_speech/60/60))
 
 #RIR
-rir_list = glob.glob(os.path.join(path_datos, 'impulsos', '**/*.wav'), recursive=True)
+rir_list = glob.glob(os.path.join(path_datos, 'impulsos/sinteticos', '**/*.wav'), recursive=True)
 rir_duraciones=[sf.info(rir).frames for rir in rir_list]
 print('En total hay {} respuestas al impulso'.format(len(rir_list)))
 
@@ -34,12 +34,12 @@ dict_rir = {i:j for i,j in enumerate(rir_list)}
 contador = 0
 for speech_path in tqdm.tqdm(speech_list):
     rir_path = dict_rir[random.randint(0, len(rir_list)-1)] #rir aleatoria
-    magspec_reverb, mask_comp = generate_inputs(speech_path, rir_path)
+    magspec_reverb, magspec_clean = generate_inputs(speech_path, rir_path)
     magspec_reverb = framing(magspec_reverb)
-    mask_comp = framing(mask_comp)
+    magspec_clean = framing(magspec_clean)
     for frame in range(magspec_reverb.shape[0]):
-        np.save(save_path+str(contador)+'.npy',[magspec_reverb[frame,:,:], mask_comp[frame,:,:]])
+        np.save(save_path+str(contador)+'.npy',[magspec_reverb[frame,:,:], magspec_clean[frame,:,:]])
         contador+=1
-        #print('impulso: {} \n'.format(rir_path))
-        #print('cantidad de frames: {} \n'.format(frame+1))
-
+    #print('impulso: {} \n'.format(rir_path))
+    #print('cantidad de frames: {} \n'.format(frame+1))
+     
