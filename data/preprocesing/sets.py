@@ -8,7 +8,7 @@ import glob
 import librosa as lb
 import soundfile as sf
 import tqdm
-from data_generator import generate_inputs, framing
+from data_generator import generate_inputs, framing, audio_framing
 #----------------------------PATHS---------------------------------------------
 path_datos = "/mnt/datasets" #path donde tengo el dataset
 sys.path.append(path_datos)
@@ -31,7 +31,23 @@ print('En total hay {} respuestas al impulso'.format(len(rir_list)))
 #genero diccionario de rir para seleccionar aleatoriamente
 dict_rir = {i:j for i,j in enumerate(rir_list)}
 
+
 contador = 0
+for speech_path in tqdm.tqdm(speech_list):
+    rir_path = dict_rir[random.randint(0, len(rir_list)-1)] #rir aleatoria
+    audio_reverb, audio_clean = generate_inputs(speech_path, rir_path)
+    audio_reverb = audio_framing(audio_reverb)
+    audio_clean = audio_framing(audio_clean)
+    for frame in range(audio_reverb.shape[0]):
+        np.save(save_path+str(contador)+'.npy',[audio_reverb[frame,:], audio_clean[frame,:]])
+        contador+=1
+    #print('impulso: {} \n'.format(rir_path))
+    #print('cantidad de frames: {} \n'.format(frame+1))
+ 
+
+
+
+'''contador = 0
 for speech_path in tqdm.tqdm(speech_list):
     rir_path = dict_rir[random.randint(0, len(rir_list)-1)] #rir aleatoria
     magspec_reverb, magspec_clean = generate_inputs(speech_path, rir_path)
@@ -42,4 +58,4 @@ for speech_path in tqdm.tqdm(speech_list):
         contador+=1
     #print('impulso: {} \n'.format(rir_path))
     #print('cantidad de frames: {} \n'.format(frame+1))
-     
+'''     

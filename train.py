@@ -7,12 +7,12 @@ MAIN_PATH="/home/martin/Documents/tesis/src"
 sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
 
 #Data generators
-from model.data_loader_static import build_generators
-params = {'path':'/mnt/datasets/npy_data/', 'batch_size' : 16, 'dim' : (257,256)}
+from model.data_loader import build_generators
+params = {'path':'/mnt/datasets/npy_data/', 'batch_size' : 16, 'dim' : (256, 257)}
 training_generator, validation_generator = build_generators(params)
 
 #defino el modelo
-from model.network_architecture import dereverb_autoencoder, autoencoder
+from model.network_architecture import autoencoder
 #modelo = dereverb_autoencoder()
 modelo = autoencoder()
 modelo.summary()

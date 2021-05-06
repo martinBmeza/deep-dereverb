@@ -24,6 +24,23 @@ def framing(data, winsize=256, step=256, dim=1):
     #shape --> (frames, freq, time)
     return out
 
+def audio_framing(audio, winsize = 32640):
+    
+    n_frames = int(len(audio)/winsize)
+    #resto = len(audio)%winsize
+    
+    out = np.empty((n_frames, winsize))
+    #if resto == 0:
+    #    out = np.empty((n_frames, winsize))
+    #else:
+    #    out = np.empty((n_frames+1, winsize))
+    #    out[-1,:resto] = audio[n_frames*winsize:]
+    #    out[-1,resto:] = np.zeros(winsize-resto)
+    
+    for frame in range(n_frames):
+        out[frame,:] = audio[frame*winsize:(frame+1)*winsize]
+    
+    return out 
 
 def normalise(array, range_min, range_max, array_min, array_max):
     norm_array = (array - array_min) / (array_max - array_min)
@@ -34,11 +51,6 @@ def denormalise(norm_array, original_min, original_max, range_min, range_max):
     array = (norm_array - range_min) / (range_max - range_min)
     array = array * (original_max - original_min) + original_min
     return array
-
-def irm(y, n):
-    y = librosa.core.stft(y.astype('float64'), 512, 128).astype('complex128')
-    n = librosa.core.stft(n.astype('float64'), 512, 128).astype('complex128')
-    return (1* (np.abs(y) ** 2) / (np.abs(y) ** 2 + np.abs(n) ** 2)) ** 0.5
 
 
 def generate_inputs(speech_path, rir_path):
@@ -53,6 +65,9 @@ def generate_inputs(speech_path, rir_path):
     delay_shift = np.argmax(rir)
     rir = rir[delay_shift:]
 
+    #Normalizo el impulso 
+    rir = rir / np.max(abs(rir))
+
     #Convoluciono. Obtengo audio con reverb
     reverb = fftconvolve(speech, rir)
 
@@ -60,16 +75,16 @@ def generate_inputs(speech_path, rir_path):
     clean = np.pad(speech, (0,len(rir)-1), 'constant', constant_values=(eps,eps)) 
 
     #genero las STFTs
-    stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)#
-    spectrogram_clean = np.abs(stft_clean)
-    log_spectrogram_clean = librosa.amplitude_to_db(spectrogram_clean)
+    #stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)#
+    #spectrogram_clean = np.abs(stft_clean)
+    #log_spectrogram_clean = librosa.amplitude_to_db(spectrogram_clean)
 
-    stft_reverb = librosa.stft(reverb, n_fft=512, hop_length=128)
-    spectrogram_reverb = np.abs(stft_reverb)
-    log_spectrogram_reverb = librosa.amplitude_to_db(spectrogram_reverb)
+    #stft_reverb = librosa.stft(reverb, n_fft=512, hop_length=128)
+    #spectrogram_reverb = np.abs(stft_reverb)
+    #log_spectrogram_reverb = librosa.amplitude_to_db(spectrogram_reverb)
 
-    log_norm_reverb = normalise(log_spectrogram_reverb, 0, 1, -47, 39)
-    log_norm_clean = normalise(log_spectrogram_clean, 0, 1, -47, 39)
+    #log_norm_reverb = normalise(log_spectrogram_reverb, 0, 1, -47, 39)
+    #log_norm_clean = normalise(log_spectrogram_clean, 0, 1, -47, 39)
     
-    return [log_norm_reverb, log_norm_clean]
-
+    #return [log_norm_reverb, log_norm_clean]
+    return [reverb, clean]
