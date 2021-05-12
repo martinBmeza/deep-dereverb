@@ -67,7 +67,6 @@ class DataGenerator(keras.utils.Sequence):
             log_norm_reverb = normalise(log_spectrogram_reverb, 0, 1, array_min, array_max)
             
             [x_clean[i], x_reverb[i]] = log_norm_clean, log_norm_reverb
-        
         return [x_reverb, x_clean], Y
 
 def normalise(array, range_min, range_max, array_min, array_max):
