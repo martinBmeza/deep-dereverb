@@ -38,6 +38,7 @@ def framing(data, winsize=256, step=256, dim=1):
 
     return out
 
+'''
 def audio_framing(audio, winsize = 32640):                                                                                                                            
                                                                                                                                                                       
     n_frames = int(len(audio)/winsize)                                                                                                                                
@@ -55,8 +56,8 @@ def audio_framing(audio, winsize = 32640):
     audio_pad = np.concatenate((audio, np.zeros(winsize-resto)))
     
     return out, audio_pad
-
 '''
+
 def audio_framing(audio, winsize = 32640):
     
     n_frames = int(len(audio)/winsize)
@@ -73,8 +74,8 @@ def audio_framing(audio, winsize = 32640):
     for frame in range(n_frames):
         out[frame,:] = audio[frame*winsize:(frame+1)*winsize]
     
-    return out 
-'''
+    return out, audio 
+
 
 def normalise(array, range_min, range_max, array_min, array_max):
     norm_array = (array - array_min) / (array_max - array_min)
@@ -147,6 +148,7 @@ def building_loop(speech_list, rir_list):
         audio_reverb, _ = audio_framing(audio_reverb)
         audio_clean, _ = audio_framing(audio_clean)
         
+        #import pdb; pdb.set_trace()
         for frame in range(audio_reverb.shape[0]):
             np.save(save_path+str(contador)+'.npy',[audio_reverb[frame,:], audio_clean[frame,:]])
             contador+=1
