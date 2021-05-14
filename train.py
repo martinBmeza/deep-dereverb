@@ -8,7 +8,7 @@ sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
 
 #Data generators
 from model.data_loader import build_generators
-params = {'path':'/mnt/datasets/npy_data/', 'batch_size' : 5, 'dim' : (256, 257)}
+params = {'path':'/mnt/datasets/npy_data/experimento_1/', 'batch_size' : 5, 'dim' : (256, 257)}
 training_generator, validation_generator = build_generators(params)
 
 #defino el modelo
