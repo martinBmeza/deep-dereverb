@@ -105,7 +105,7 @@ def generate_inputs(speech_path, rir_path):
 
 #----------------------------PATHS---------------------------------------------
 #Experimento 1 
-EXP_FILE = '/home/martin/Documents/tesis/src/data/exp1.pkl'
+EXP_FILE = '/home/martin/Documents/tesis/src/experiments/datasets/exp1.pkl'
 with open(EXP_FILE, 'rb') as f:
     exp_1 = pickle.load(f)
 

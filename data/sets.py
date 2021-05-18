@@ -104,7 +104,7 @@ exp1_sets['sim_test'] = sim_test
 out_path = data_folder + 'npy_data/experimento_1/'
 exp1_sets['out_path'] = out_path 
 
-with open('exp1.pkl', 'wb') as f:
+with open('/home/martin/Documents/tesis/src/experiments/datasets/exp1.pkl', 'wb') as f:
     pickle.dump(exp1_sets, f)
 
 
