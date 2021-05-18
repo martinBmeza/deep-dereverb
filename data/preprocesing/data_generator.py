@@ -1,6 +1,4 @@
 import sys, os, random
-MAIN_PATH="/home/martin/Documents/tesis/src"
-sys.path.append(MAIN_PATH)
 import numpy as np
 import glob
 import shutil
@@ -20,22 +18,16 @@ def prepare_save_path(path):
         os.mkdir(path)
     else:
         os.mkdir(path)
-    
     return(path)
 
 
-def framing(data, winsize=256, step=256, dim=1):
+def img_framing(data, winsize=256, step=256, dim=1):
+    
     n_frames = int(data.shape[dim] / winsize)
     out = np.empty((n_frames, data.shape[0], winsize)) #+1 por el pad 
     for frame in range(n_frames):
         out[frame,:,:] = data[:,frame*winsize : (frame+1)*winsize]
-    #agrego el padeado 
-    #resto = data.shape[dim]%winsize
-    #to_pad = winsize - resto
-    #out[-1,:,:resto] = data[:, n_frames*winsize: n_frames*winsize + resto]
-    #out[-1,:,resto:] = np.zeros((data.shape[0],to_pad))
-    #shape --> (frames, freq, time)
-
+   
     return out
 
 '''
@@ -59,17 +51,10 @@ def audio_framing(audio, winsize = 32640):
 '''
 
 def audio_framing(audio, winsize = 32640):
-    
-    n_frames = int(len(audio)/winsize)
-    #resto = len(audio)%winsize
-    
+    ''' Devuelvo solo frames enteros, sin padear'''
+
+    n_frames = int(len(audio)/winsize) 
     out = np.empty((n_frames, winsize))
-    #if resto == 0:
-    #    out = np.empty((n_frames, winsize))
-    #else:
-    #    out = np.empty((n_frames+1, winsize))
-    #    out[-1,:resto] = audio[n_frames*winsize:]
-    #    out[-1,resto:] = np.zeros(winsize-resto)
     
     for frame in range(n_frames):
         out[frame,:] = audio[frame*winsize:(frame+1)*winsize]
@@ -87,41 +72,33 @@ def denormalise(norm_array, original_min, original_max, range_min, range_max):
     array = array * (original_max - original_min) + original_min
     return array
 
+def temporal_decompose(rir, fs, win = 0.0025):
+
+    t_d = np.argmax(rir) # direct path
+    t_o = int((win) * fs) #tolerance window in samples (2.5 ms) PROBAR VARIAR
+    early = rir[(t_d - t_o):(t_d + t_o)+1]
+    complete = rir[t_d - t_o:]
+    
+    return early, complete
 
 def generate_inputs(speech_path, rir_path):
 
     #Cargo los datos
     speech, speech_fs = librosa.load(speech_path, sr=16000)
     rir, rir_fs = librosa.load(rir_path, sr=16000)
-    if speech_fs!=rir_fs:
-        raise Exception("Hay audios con distintas frecuencias de sampleo")
-
-    # Elimino el delay del impulso
-    delay_shift = np.argmax(rir)
-    rir = rir[delay_shift:]
-
+    
     #Normalizo el impulso 
     rir = rir / np.max(abs(rir))
 
-    #Convoluciono. Obtengo audio con reverb
-    reverb = fftconvolve(speech, rir)
-
-    #Padeo el audio anecoico. Obtengo el audio clean
-    clean = np.pad(speech, (0,len(rir)-1), 'constant', constant_values=(eps,eps)) 
-
-    #genero las STFTs
-    #stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)#
-    #spectrogram_clean = np.abs(stft_clean)
-    #log_spectrogram_clean = librosa.amplitude_to_db(spectrogram_clean)
-
-    #stft_reverb = librosa.stft(reverb, n_fft=512, hop_length=128)
-    #spectrogram_reverb = np.abs(stft_reverb)
-    #log_spectrogram_reverb = librosa.amplitude_to_db(spectrogram_reverb)
-
-    #log_norm_reverb = normalise(log_spectrogram_reverb, 0, 1, -47, 39)
-    #log_norm_clean = normalise(log_spectrogram_clean, 0, 1, -47, 39)
+    #Divido parte early
+    rir_early, rir_complete = temporal_decompose(rir, rir_fs)
     
-    #return [log_norm_reverb, log_norm_clean]
+    #Convoluciono. Obtengo audio con reverb
+    reverb = fftconvolve(speech, rir_complete)
+
+    #Convoluciono y padeo el audio anecoico. Obtengo el audio clean
+    clean = fftconvolve(speech, rir_early)
+    clean = np.pad(clean, (0,len(rir_complete)-len(rir_early)), 'constant', constant_values=(eps,eps)) 
 
     return [reverb, clean]
 
