@@ -81,7 +81,7 @@ sim_list_r1_500 = get_list(sim_rir_path+'room1/500')
 sim_list_r1_750 = get_list(sim_rir_path+'room1/750')
 sim_list_r1_1000 = get_list(sim_rir_path+'room1/1000')
 
-sim_train_list = random.sample(sim_list_r1_500, 15) +  random.sample(sim_list_r1_500, 15) + random.sample(sim_list_r1_500, 15)
+sim_train_list = random.sample(sim_list_r1_500, 15) +  random.sample(sim_list_r1_750, 15) + random.sample(sim_list_r1_1000, 15)
 
 sim_test_r2_500 = get_list(sim_rir_path+'room2/500')
 sim_test_r2_750 = get_list(sim_rir_path+'room2/750')

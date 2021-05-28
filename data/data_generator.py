@@ -1,4 +1,5 @@
 import sys, os, random
+sys.path.append('/home/martin/Documents/tesis/src')
 import numpy as np
 import glob
 import shutil
@@ -8,18 +9,9 @@ import pickle
 import tqdm
 import matplotlib.pyplot as plt
 from scipy.signal import fftconvolve, stft
+from utils import temporal_decompose, normalizer, prepare_save_path
 
 eps = np.finfo(float).eps #precision de punto flotante
-
-def prepare_save_path(path):
-
-    if os.path.isdir(path):
-        shutil.rmtree(path)
-        os.mkdir(path)
-    else:
-        os.mkdir(path)
-    return(path)
-
 
 def img_framing(data, winsize=256, step=256, dim=1):
     
@@ -62,25 +54,6 @@ def audio_framing(audio, winsize = 32640):
     return out, audio 
 
 
-def normalise(array, range_min, range_max, array_min, array_max):
-    norm_array = (array - array_min) / (array_max - array_min)
-    norm_array = norm_array * (range_max - range_min) + range_min
-    return norm_array
-
-def denormalise(norm_array, original_min, original_max, range_min, range_max):
-    array = (norm_array - range_min) / (range_max - range_min)
-    array = array * (original_max - original_min) + original_min
-    return array
-
-def temporal_decompose(rir, fs, win = 0.0025):
-
-    t_d = np.argmax(rir) # direct path
-    t_o = int((win) * fs) #tolerance window in samples (2.5 ms) PROBAR VARIAR
-    early = rir[(t_d - t_o):(t_d + t_o)+1]
-    complete = rir[t_d - t_o:]
-    
-    return early, complete
-
 def generate_inputs(speech_path, rir_path):
 
     #Cargo los datos
@@ -102,7 +75,19 @@ def generate_inputs(speech_path, rir_path):
 
     return [reverb, clean]
 
-
+def building_loop(speech_list, rir_list):
+    dict_rir = {i:j for i,j in enumerate(rir_list)} #genero diccionario de rir para seleccionar aleatoriamente 
+    contador = 0
+    for speech_path in tqdm.tqdm(speech_list):
+        rir_path = dict_rir[random.randint(0, len(rir_list)-1)] #rir aleatoria
+        audio_reverb, audio_clean = generate_inputs(speech_path, rir_path)
+        audio_reverb, _ = audio_framing(audio_reverb)
+        audio_clean, _ = audio_framing(audio_clean)
+        
+        for frame in range(audio_reverb.shape[0]):
+            np.save(save_path+str(contador)+'.npy',[audio_reverb[frame,:], audio_clean[frame,:]])
+            contador+=1
+ 
 #----------------------------PATHS---------------------------------------------
 #Experimento 1 
 EXP_FILE = '/home/martin/Documents/tesis/src/experiments/datasets/exp1.pkl'
@@ -112,22 +97,5 @@ with open(EXP_FILE, 'rb') as f:
 save_path = prepare_save_path(exp_1['out_path'])+'/'
 speech_list = exp_1['clean_train']
 rir_list = exp_1['real_train'] + exp_1['sim_train']
-#------------------------------------------------------------------------------
-
-dict_rir = {i:j for i,j in enumerate(rir_list)} #genero diccionario de rir para seleccionar aleatoriamente
-
-def building_loop(speech_list, rir_list):
-
-    contador = 0
-    for speech_path in tqdm.tqdm(speech_list):
-        rir_path = dict_rir[random.randint(0, len(rir_list)-1)] #rir aleatoria
-        audio_reverb, audio_clean = generate_inputs(speech_path, rir_path)
-        audio_reverb, _ = audio_framing(audio_reverb)
-        audio_clean, _ = audio_framing(audio_clean)
-        
-        #import pdb; pdb.set_trace()
-        for frame in range(audio_reverb.shape[0]):
-            np.save(save_path+str(contador)+'.npy',[audio_reverb[frame,:], audio_clean[frame,:]])
-            contador+=1
-           
 building_loop(speech_list, rir_list)
+#------------------------------------------------------------------------------          

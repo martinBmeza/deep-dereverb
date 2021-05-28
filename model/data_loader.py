@@ -48,10 +48,9 @@ class DataGenerator(keras.utils.Sequence):
         
         x_clean = np.empty((self.batch_size, 257, 256))
         x_reverb = np.empty((self.batch_size, 257, 256))
-        Y = np.empty((self.batch_size, 257, 256))
 
         # Generate data
-        array_min, array_max = -47, 39
+        array_min, array_max = -55, 39
         for i, ID in enumerate(list_IDs_temp):
              
             reverb, clean = np.load(self.path + str(ID) + '.npy')
@@ -66,8 +65,8 @@ class DataGenerator(keras.utils.Sequence):
             log_spectrogram_reverb = librosa.amplitude_to_db(spectrogram_reverb)
             log_norm_reverb = normalise(log_spectrogram_reverb, 0, 1, array_min, array_max)
             
-            [x_clean[i], x_reverb[i]] = log_norm_clean, log_norm_reverb
-        return [x_reverb, x_clean], Y
+            x_clean[i], x_reverb[i] = log_norm_clean, log_norm_reverb
+        return x_reverb, x_clean
 
 def normalise(array, range_min, range_max, array_min, array_max):
     norm_array = (array - array_min) / (array_max - array_min)

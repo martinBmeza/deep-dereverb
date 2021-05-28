@@ -20,14 +20,13 @@ def autoencoder():
     #Acondicionamiento
     reverb = tf.expand_dims(reverb_in,axis=-1, name='expand_reverb')
     reverb = tfkl.Cropping2D(((0,1),(0,0)), name='ESPECTRO_REVERB')(reverb)
-    reverb_norm = Normalize(name = 'ESPECTRO_REVERB_NORMALIZADO')(reverb)
 
     clean = tf.expand_dims(clean_in,axis=-1, name= 'expand_clean')
     clean = tfkl.Cropping2D(((0,1),(0,0)), name = 'ESPECTRO_CLEAN')(clean)
 
 
     #ENCODER
-    enc = tfkl.Conv2D(64, kernel_size=(5,5), strides=2, padding='SAME', input_shape=(256,256,1), name='CONV1')(reverb_norm)
+    enc = tfkl.Conv2D(64, kernel_size=(5,5), strides=2, padding='SAME', input_shape=(256,256,1), name='CONV1')(reverb)
     enc_1 = tfkl.LeakyReLU(alpha = 0.2, name = 'ACT1')(enc)
 
     enc_2 = tfkl.Conv2D(128, kernel_size=(5,5), strides=2, padding='SAME', name='CONV2')(enc_1)
@@ -119,11 +118,11 @@ def autoencoder():
     #dec = tfkl.Conv2DTranspose(1, kernel_size=(4,4), strides=2, padding='SAME', activation='tanh', name='CONV16')(dec)
 
     clean_predict = tfkl.multiply([dec, reverb], name = 'CLEAN_PREDICT')
-    err = MSE(name = 'ERROR')([clean_predict,clean])
+    clean_predict = tf.pad(clean_predict, ((0,0),(0,1),(0,0),(0,0)), mode='CONSTANT', constant_values=0)
 
-    modelo = tf.keras.Model(inputs=[reverb_in, clean_in], outputs=[err])
+    modelo = tf.keras.Model(inputs=[reverb_in], outputs=[clean_predict])
     
-    modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=mean_loss)
+    modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.MeanSquaredError()) 
 
     return modelo 
 

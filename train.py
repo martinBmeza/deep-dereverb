@@ -1,6 +1,3 @@
-"""
-Bucle de entrenamiento
-"""
 import sys
 import tensorflow as tf
 MAIN_PATH="/home/martin/Documents/tesis/src"
@@ -13,16 +10,14 @@ training_generator, validation_generator = build_generators(params)
 
 #defino el modelo
 from model.network_architecture import autoencoder
-#modelo = dereverb_autoencoder()
 modelo = autoencoder()
+
+#cbks = [tf.keras.callbacks.EarlyStopping(monitor='loss',restore_best_weights=True, patience=2),
+#        tf.keras.callbacks.ModelCheckpoint('/home/martin/Documents/tesis/src/model/ckpts/weights.{epoch:02d}-{loss:.3f}.hdf5'),
+#        tf.keras.callbacks.TensorBoard(log_dir='tb_logs',profile_batch=0, update_freq='batch', histogram_freq=1)]
+
 modelo.summary()
-
-cbks = [tf.keras.callbacks.EarlyStopping(monitor='loss',restore_best_weights=True, patience=2),
-        tf.keras.callbacks.ModelCheckpoint('/home/martin/Documents/tesis/src/model/ckpts/weights.{epoch:02d}-{loss:.3f}.hdf5'),
-        tf.keras.callbacks.TensorBoard(log_dir='tb_logs',profile_batch=0, update_freq='batch', histogram_freq=1)]
-
-
 #Entreno
-history = modelo.fit(training_generator, validation_data =  validation_generator, use_multiprocessing = True, callbacks = cbks, workers=12, epochs=10)
-
-
+modelo.load_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_TIMIT.hdf5')
+history = modelo.fit(training_generator, validation_data =  validation_generator, use_multiprocessing = True, workers=12, epochs=10)
+modelo.save_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_TIMIT.hdf5')
