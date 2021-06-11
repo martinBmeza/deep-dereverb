@@ -42,10 +42,8 @@ class DataGenerator(keras.utils.Sequence):
             np.random.shuffle(self.indexes)
 
     def __data_generation(self, list_IDs_temp):
-
         'Generates data containing batch_size samples'
         # Initialization 
-        
         x_clean = np.empty((self.batch_size, 257, 256))
         x_reverb = np.empty((self.batch_size, 257, 256))
 

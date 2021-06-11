@@ -62,7 +62,8 @@ def generate_inputs(speech_path, rir_path):
     
     #Normalizo el impulso 
     rir = rir / np.max(abs(rir))
-
+    
+    
     #Divido parte early
     rir_early, rir_complete = temporal_decompose(rir, rir_fs)
     
@@ -72,7 +73,7 @@ def generate_inputs(speech_path, rir_path):
     #Convoluciono y padeo el audio anecoico. Obtengo el audio clean
     clean = fftconvolve(speech, rir_early)
     clean = np.pad(clean, (0,len(rir_complete)-len(rir_early)), 'constant', constant_values=(eps,eps)) 
-
+    
     return [reverb, clean]
 
 def building_loop(speech_list, rir_list):
@@ -96,6 +97,7 @@ with open(EXP_FILE, 'rb') as f:
 
 save_path = prepare_save_path(exp_1['out_path'])+'/'
 speech_list = exp_1['clean_train']
-rir_list = exp_1['real_train'] + exp_1['sim_train']
-building_loop(speech_list, rir_list)
+#rir_list = exp_1['real_train'] + exp_1['sim_train']
+rir_list = exp_1['sim_train']
+building_loop(speech_list, rir_list[0:2])
 #------------------------------------------------------------------------------          

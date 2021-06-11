@@ -64,3 +64,15 @@ def predict_model(data, modelo):
   #print('orden de las entradas: /\n',input_names)                                                                                                                     
   return activations
 
+def preProcessing(reverb, clean):
+    
+    stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)                                                                                           
+    spectrogram_clean = np.abs(stft_clean)                                                                                                                
+    log_spectrogram_clean = librosa.amplitude_to_db(spectrogram_clean)                                                                                    
+    log_norm_clean = normalise(log_spectrogram_clean, 0, 1, array_min, array_max)                                                                         
+    
+    stft_reverb = librosa.stft(reverb, n_fft=512, hop_length=128)                                                                                         
+    spectrogram_reverb = np.abs(stft_reverb)                                                                                                              
+    log_spectrogram_reverb = librosa.amplitude_to_db(spectrogram_reverb)                                                                                  
+    log_norm_reverb = normalise(log_spectrogram_reverb, 0, 1, array_min, array_max)
+    return log_norm_reverb.reshape(1, 257, 256), log_norm_clean.reshape(1, 257, 256)
