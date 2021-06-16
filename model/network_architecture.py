@@ -121,7 +121,7 @@ def autoencoder():
     clean_predict = tf.pad(clean_predict, ((0,0),(0,1),(0,0),(0,0)), mode='CONSTANT', constant_values=0)
 
     modelo = tf.keras.Model(inputs=[reverb_in], outputs=[clean_predict])
-    
+ 
     modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.MeanSquaredError()) 
 
     return modelo 
