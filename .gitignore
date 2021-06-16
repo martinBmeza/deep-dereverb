@@ -15,3 +15,7 @@ tmp/
 tb_logs/
 *.ipynb
 resultados_parciales/
+*.wav
+*.WAV
+*.flac
+*.FLAC
