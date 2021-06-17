@@ -5,7 +5,7 @@ sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
 
 #Data generators
 from model.data_loader import build_generators
-params = {'path':'/mnt/datasets/npy_data/experimento_1/', 'batch_size' : 16, 'dim' : (256, 257)}
+params = {'path':'/mnt/datasets/npy_data/prueba_general/', 'batch_size' : 16, 'dim' : (256, 256)}
 training_generator, validation_generator = build_generators(params)
 
 #defino el modelo
@@ -18,6 +18,6 @@ modelo = autoencoder()
 
 modelo.summary()
 #Entreno
-modelo.load_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_TIMIT.hdf5')
-history = modelo.fit(training_generator, validation_data =  validation_generator, use_multiprocessing = True, workers=12, epochs=10)
-modelo.save_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_TIMIT.hdf5')
+#modelo.load_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_TIMIT.hdf5')
+history = modelo.fit(training_generator, validation_data =  validation_generator, use_multiprocessing = True, workers=12, epochs=1)
+modelo.save_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_prueba_general.hdf5')

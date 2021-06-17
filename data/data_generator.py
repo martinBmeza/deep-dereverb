@@ -1,76 +1,43 @@
 import sys, os, random
 sys.path.append('/home/martin/Documents/tesis/src')
 import numpy as np
-import glob
-import shutil
-import soundfile as sf
-import librosa
-import pickle
 import tqdm
-import matplotlib.pyplot as plt
-from scipy.signal import fftconvolve, stft
-from utils import temporal_decompose, normalizer, prepare_save_path
+from utils import *
 
-eps = np.finfo(float).eps #precision de punto flotante
-
-def img_framing(data, winsize=256, step=256, dim=1):
-    
-    n_frames = int(data.shape[dim] / winsize)
-    out = np.empty((n_frames, data.shape[0], winsize)) #+1 por el pad 
-    for frame in range(n_frames):
-        out[frame,:,:] = data[:,frame*winsize : (frame+1)*winsize]
-   
-    return out
-
-
-
-def audio_framing(audio, winsize = 32640):
-    ''' Devuelvo solo frames enteros, sin padear'''
-
-    n_frames = int(len(audio)/winsize) 
-    out = np.empty((n_frames, winsize))
-    
-    for frame in range(n_frames):
-        out[frame,:] = audio[frame*winsize:(frame+1)*winsize]
-    
-    return out, audio 
-
-
-def generate_inputs(speech_path, rir_path):
-
-    #Cargo los datos
-    speech, speech_fs = librosa.load(speech_path, sr=16000)
-    rir, rir_fs = librosa.load(rir_path, sr=16000)
-    
-    #Normalizo el impulso 
-    rir = rir / np.max(abs(rir))
-    
-    
-    #Divido parte early
-    rir_early, rir_complete = temporal_decompose(rir, rir_fs)
-    
-    #Convoluciono. Obtengo audio con reverb
-    reverb = fftconvolve(speech, rir_complete)
-
-    #Convoluciono y padeo el audio anecoico. Obtengo el audio clean
-    clean = fftconvolve(speech, rir_early)
-    clean = np.pad(clean, (0,len(rir_complete)-len(rir_early)), 'constant', constant_values=(eps,eps)) 
-    
-    return [reverb, clean]
-
-def building_loop(speech_list, rir_list):
-    dict_rir = {i:j for i,j in enumerate(rir_list)} #genero diccionario de rir para seleccionar aleatoriamente 
+def building_loop(speech_list, rir_list, save_path): 
     contador = 0
     for speech_path in tqdm.tqdm(speech_list):
-        rir_path = dict_rir[random.randint(0, len(rir_list)-1)] #rir aleatoria
-        audio_reverb, audio_clean = generate_inputs(speech_path, rir_path)
-        audio_reverb, _ = audio_framing(audio_reverb)
-        audio_clean, _ = audio_framing(audio_clean)
-        
-        for frame in range(audio_reverb.shape[0]):
-            np.save(save_path+str(contador)+'.npy',[audio_reverb[frame,:], audio_clean[frame,:]])
+
+        rir_path = np.random.choice(rir_list)
+
+        #Genero los espectros
+        clean_stft, reverb_stft = get_specs_from_path(rir_path, speech_path, FACTOR=70)
+
+        #Framing
+        clean_frames = img_framing_pad(clean_stft, winsize=256, step=256, dim=1)
+        reverb_frames = img_framing_pad(reverb_stft, winsize=256, step=256, dim=1)
+
+        for frame in range(clean_frames.shape[0]):
+            np.save(save_path+str(contador)+'.npy',[reverb_frames[frame,:,:], clean_frames[frame,:,:]])
             contador+=1
- 
+
+#----------------------------PATHS---------------------------------------------
+#Prueba General 
+
+save_path = '/mnt/datasets/npy_data/con_aumentados/'
+speech_path = '/mnt/datasets/clean_voice/dev-clean'
+speech_list = get_audio_list(speech_path)
+
+#rir_path = '/mnt/datasets/impulsos/reales/C4DM'
+rir_path = '/home/martin/Documents/tesis/src/aumentacion/aumentados'
+rir_list = get_audio_list(rir_path)
+
+building_loop(speech_list, rir_list, save_path)
+#------------------------------------------------------------------------------          
+
+
+
+"""
 #----------------------------PATHS---------------------------------------------
 #Experimento 1 
 EXP_FILE = '/home/martin/Documents/tesis/src/experiments/datasets/exp1.pkl'
@@ -83,3 +50,4 @@ speech_list = exp_1['clean_train']
 rir_list = exp_1['sim_train']
 building_loop(speech_list, rir_list[0:2])
 #------------------------------------------------------------------------------          
+"""

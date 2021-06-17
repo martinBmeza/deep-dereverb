@@ -14,15 +14,15 @@ def autoencoder():
     tf.keras.backend.clear_session()
     eps = np.finfo(float).eps
 
-    reverb_in = tfkl.Input((257,256), name = 'Entrada_reverb')
-    clean_in = tfkl.Input((257,256), name = 'Entrada_clean')
+    reverb_in = tfkl.Input((256,256), name = 'Entrada_reverb')
+    clean_in = tfkl.Input((256,256), name = 'Entrada_clean')
 
     #Acondicionamiento
-    reverb = tf.expand_dims(reverb_in,axis=-1, name='expand_reverb')
-    reverb = tfkl.Cropping2D(((0,1),(0,0)), name='ESPECTRO_REVERB')(reverb)
+    reverb = tf.expand_dims(reverb_in,axis=-1, name='Reverb')
+    #reverb = tfkl.Cropping2D(((0,1),(0,0)), name='ESPECTRO_REVERB')(reverb)
 
-    clean = tf.expand_dims(clean_in,axis=-1, name= 'expand_clean')
-    clean = tfkl.Cropping2D(((0,1),(0,0)), name = 'ESPECTRO_CLEAN')(clean)
+    clean = tf.expand_dims(clean_in,axis=-1, name= 'Clean')
+    #clean = tfkl.Cropping2D(((0,1),(0,0)), name = 'ESPECTRO_CLEAN')(clean)
 
 
     #ENCODER
@@ -112,19 +112,18 @@ def autoencoder():
     dec = tfkl.Concatenate(axis=-1)([dec, enc_1])
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
-    dec = tfkl.Conv2D(1, kernel_size=(5,5), strides=1, padding='SAME', name='CONV16')(dec)
-    #dec = tfkl.ReLU(max_value=1.0, name = 'SALIDA_DEL_DECODER')(dec)
-    dec = tfkl.Activation('sigmoid', name = 'SALIDA_DEL_DECODER')(dec)
+    dec = tfkl.Conv2D(1, kernel_size=(5,5), strides=1, padding='SAME', activation='tanh',name='SALIDA_DEL_DECODER')(dec)
+    #dec = tfkl.Activation('tanh', name = 'SALIDA_DEL_DECODER')(dec)
     #dec = tfkl.Conv2DTranspose(1, kernel_size=(4,4), strides=2, padding='SAME', activation='tanh', name='CONV16')(dec)
 
     clean_predict = tfkl.multiply([dec, reverb], name = 'CLEAN_PREDICT')
-    clean_predict = tf.pad(clean_predict, ((0,0),(0,1),(0,0),(0,0)), mode='CONSTANT', constant_values=0)
+    #clean_predict = tf.pad(clean_predict, ((0,0),(0,1),(0,0),(0,0)), mode='CONSTANT', constant_values=0)
 
     modelo = tf.keras.Model(inputs=[reverb_in], outputs=[clean_predict])
- 
-    modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.MeanSquaredError()) 
 
-    return modelo 
+    modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.MeanSquaredError())
+
+    return modelo
 
 def mean_loss(y_true, y_pred):
     """
