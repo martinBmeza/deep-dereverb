@@ -22,25 +22,7 @@ def img_framing(data, winsize=256, step=256, dim=1):
    
     return out
 
-'''
-def audio_framing(audio, winsize = 32640):                                                                                                                            
-                                                                                                                                                                      
-    n_frames = int(len(audio)/winsize)                                                                                                                                
-    resto = len(audio)%winsize                                                                                                                                        
-                                                                                                                                                                      
-    if resto == 0:                                                                                                                                                    
-        out = np.empty((n_frames, winsize))                                                                                                                           
-    else:                                                                                                                                                             
-        out = np.empty((n_frames+1, winsize))                                                                                                                         
-        out[-1,:resto] = audio[n_frames*winsize:]                                                                                                                     
-        out[-1,resto:] = np.zeros(winsize-resto)                                                                                                                      
-                                                                                                                                                                      
-    for frame in range(n_frames):                                                                                                                                     
-        out[frame,:] = audio[frame*winsize:(frame+1)*winsize]                                                                                                         
-    audio_pad = np.concatenate((audio, np.zeros(winsize-resto)))
-    
-    return out, audio_pad
-'''
+
 
 def audio_framing(audio, winsize = 32640):
     ''' Devuelvo solo frames enteros, sin padear'''

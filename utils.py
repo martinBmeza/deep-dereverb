@@ -13,23 +13,17 @@ def prepare_save_path(path):
     return(path)
 
 
-def temporal_decompose(rir, fs, win = 0.0010):
-    t_d = np.argmax(rir) # direct path
-    t_o = int((win) * fs) #tolerance window in samples
-    
-    if t_d - t_o < 0:
-        start = 0
-    else:
-        start = t_d - t_o
-        
-    if t_d + t_o > len(rir) - 1:
-        end = len(rir) - 1
-    else:
-        end = t_d + t_o + 1
-    
-    early = rir[start:end]
-    complete = rir[start:]
-    return early, complete
+def temporal_decompose(rir, Q_e):
+    inicio = np.argmax(abs(rir)) # direct path
+
+    early = rir[inicio:inicio+Q_e]
+    late = rir[inicio:]
+
+    #Igualo dimensiones para simplificar la implementacion
+    early_pad = np.concatenate((early, np.zeros(len(late))))
+    late_pad = np.concatenate((np.zeros(len(early)), late))
+    assert len(early_pad) == len(late_pad)
+    return early_pad, late_pad
 
 def normalizer( array, range_min, range_max, arr_min, arr_max, mode):
     if mode == 'normalise':
@@ -65,12 +59,12 @@ def predict_model(data, modelo):
   return activations
 
 def preProcessing(reverb, clean):
-    
+
     stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)                                                                                           
     spectrogram_clean = np.abs(stft_clean)                                                                                                                
     log_spectrogram_clean = librosa.amplitude_to_db(spectrogram_clean)                                                                                    
     log_norm_clean = normalise(log_spectrogram_clean, 0, 1, array_min, array_max)                                                                         
-    
+
     stft_reverb = librosa.stft(reverb, n_fft=512, hop_length=128)                                                                                         
     spectrogram_reverb = np.abs(stft_reverb)                                                                                                              
     log_spectrogram_reverb = librosa.amplitude_to_db(spectrogram_reverb)                                                                                  

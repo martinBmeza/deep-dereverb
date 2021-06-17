@@ -13,7 +13,6 @@ notebooks/
 model/ckpts/*
 tmp/
 tb_logs/
-*.ipynb
 resultados_parciales/
 *.wav
 *.WAV
