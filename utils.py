@@ -5,13 +5,28 @@ import os, shutil
 import glob
 import librosa
 from scipy.signal import fftconvolve, stft
+import tensorflow as tf
 
-def frame_to_raw(frame, FACTOR=70):
-    #Normalizacion 
-    frame_denorm = frame * FACTOR
+import sys
+sys.path.append('/home/martin/Documents/tesis/src/')
+sys.path.append('/home/martin/Documents/tesis/SRMRpy/srmrpy')   
+import srmr
+import mir_eval
+import pystoi
+from model.network_architecture import autoencoder
+EPS = np.finfo(float).eps
 
+
+
+def get_metricas(clean, reverb, fs):
+    SRMR = srmr.srmr(reverb, fs)[0]
+    SDR, _, _, _ = mir_eval.separation.bss_eval_sources(clean, reverb, compute_permutation=True)
+    ESTOI = pystoi.stoi(clean, reverb, fs, extended = True)
+    return SRMR, SDR[0], ESTOI
+
+def frame_to_raw(frame):
     #Escala logaritmica
-    frame_lin = librosa.db_to_amplitude(frame_denorm)
+    frame_lin = librosa.db_to_amplitude(frame)
 
     #Necesito agregar el bin de frecuencia que le saque.
     frame_lin_pad = np.pad(frame_lin,((0,1),(0,0)), 'minimum') #Ojoooooo!
@@ -22,6 +37,26 @@ def frame_to_raw(frame, FACTOR=70):
                                         hop_length=128, 
                                         win_length=512)
     return frame_raw
+
+def img_framing_recover(data, winsize=256, step=256, dim=1):
+    n_frames = int(data.shape[dim] / winsize)
+    out = np.empty((n_frames, data.shape[0], winsize))
+    mins = []
+    maxs = []
+    for frame in range(n_frames):
+        out[frame,:,:] = data[:,frame*winsize : (frame+1)*winsize]
+        mins.append(out[frame,:,:].min())
+        maxs.append(out[frame,:,:].max())
+        out[frame,:,:] = normalise(out[frame,:,:])
+    return out, mins, maxs
+
+def normalise(array):
+        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
+        return norm_array
+    
+def denormalise(norm_array, original_min, original_max):
+        array = norm_array * (original_max - original_min) + original_min
+        return array
 
 def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
     search_path = path + '/**/*'
@@ -55,9 +90,11 @@ def get_specs_from_path(rir_path, speech_path, FACTOR=60):
     rir_early, rir_late, rir = temporal_decompose(rir, Q_e = 32)
 
     #Convoluciono. Obtengo audio con reverb
-    reverb = fftconvolve(speech, rir)
+    reverb = fftconvolve(speech, rir)[:len(speech)]
     #Convoluciono y padeo el audio anecoico. Obtengo el audio clean
-    clean = fftconvolve(speech, rir_early)
+    #CAMBIO:ESTIMO SPEECH Y NO PARTE EARLY
+    #clean = fftconvolve(speech, rir_early)
+    clean = speech
 
     #Genero las STFT
     stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)[:-1,:]# Descarto altas frecuencias
@@ -69,9 +106,12 @@ def get_specs_from_path(rir_path, speech_path, FACTOR=60):
     log_stft_clean = librosa.amplitude_to_db(stft_clean)
     log_stft_reverb = librosa.amplitude_to_db(stft_reverb)
 
-    #Normalizacion
-    norm_stft_reverb = log_stft_reverb / FACTOR
-    norm_stft_clean = log_stft_clean / FACTOR
+    #Normalizacion BYPASS
+    #norm_stft_reverb = log_stft_reverb / FACTOR
+    #norm_stft_clean = log_stft_clean / FACTOR
+    norm_stft_reverb = log_stft_reverb
+    norm_stft_clean = log_stft_clean
+    
     return norm_stft_clean, norm_stft_reverb
 
 def img_framing(data, winsize=256, step=256, dim=1):
@@ -79,7 +119,12 @@ def img_framing(data, winsize=256, step=256, dim=1):
     out = np.empty((n_frames, data.shape[0], winsize))
     for frame in range(n_frames):
         out[frame,:,:] = data[:,frame*winsize : (frame+1)*winsize]
+        out[frame,:,:] = normalise(out[frame,:,:])
     return out
+
+def normalise(array):
+        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
+        return norm_array
 
 def img_framing_pad(data, winsize=256, step=256, dim=1):
     time = data.shape[dim]
@@ -107,17 +152,6 @@ def prepare_save_path(path):
         os.mkdir(path)
     return(path)
 
-
-def normalizer( array, range_min, range_max, arr_min, arr_max, mode):
-    if mode == 'normalise':
-        array = (array - arr_min) / (arr_max - arr_min)
-        array = array * (range_max - range_min) + range_min
-        return array
-
-    if mode == 'denormalise':
-        array = (array - range_min) / (range_max - range_min)
-        array = array * (arr_max - arr_min) + arr_min
-        return array
 
 
 def predict_model(data, modelo):

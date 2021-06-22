@@ -52,8 +52,9 @@ class DataGenerator(keras.utils.Sequence):
 
             reverb, clean = np.load(self.path + str(ID) + '.npy')
             x_clean[i], x_reverb[i] = clean, reverb
-            
-
+            #print(self.path + str(ID) + '.npy')
+            #import pdb; pdb.set_trace()
+        
         return x_reverb, x_clean
 
 

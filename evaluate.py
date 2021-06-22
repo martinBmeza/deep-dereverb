@@ -1,7 +1,7 @@
-import tensorflow as tf 
-import matplotlib.pyplot as plt 
+import tensorflow as tf
+import matplotlib.pyplot as plt
 import numpy as np
-import sys, os, random 
+import sys, os, random
 import glob
 import librosa
 import soundfile as sf
@@ -46,7 +46,7 @@ class Evaluate_model():
     def generate_audios(self, speech_path, rir_path):
         speech, _ = librosa.load(speech_path, sr=self.samplerate)
         rir, _ = librosa.load(rir_path, sr=self.samplerate)
-        
+
         rir = rir/np.max(abs(rir))
         rir_early, rir_complete = temporal_decompose(rir, self.samplerate)
 
@@ -56,32 +56,32 @@ class Evaluate_model():
         return reverb, clean
 
     def audio_framing(self, audio):
-        n_frames = int(len(audio)/self.input_size)                                                                                                                                
-        resto = len(audio)%self.input_size                                                                                                                                        
-                                                                                                                                                                          
-        if resto == 0:                                                                                                                                                    
+        n_frames = int(len(audio)/self.input_size)
+        resto = len(audio)%self.input_size
+
+        if resto == 0:
             frames = np.empty((n_frames, self.input_size))
-        else:                                                                                                                                                             
-            frames = np.empty((n_frames+1, self.input_size))                                                                                                
-            frames[-1,:resto] = audio[n_frames*self.input_size:]                                                                                                                 
-            frames[-1,resto:] = np.zeros(self.input_size-resto)                                                                                                                   
-                                                                                                                                                                          
-        for frame in range(n_frames):                                                                                                                                     
+        else:
+            frames = np.empty((n_frames+1, self.input_size))
+            frames[-1,:resto] = audio[n_frames*self.input_size:]
+            frames[-1,resto:] = np.zeros(self.input_size-resto)
+
+        for frame in range(n_frames):
             frames[frame,:] = audio[frame*self.input_size:(frame+1)*self.input_size]
         return frames, self.input_size-resto
-    
+
     def preProcessing(self, audio):
         '''Process applied inside data loader before net input'''
-        stft = librosa.stft(audio, n_fft=512, hop_length=128)                                                                                         
-        spectrogram = np.abs(stft)                                                                                                              
-        log_spectrogram = librosa.amplitude_to_db(spectrogram)                                                                                  
+        stft = librosa.stft(audio, n_fft=512, hop_length=128)
+        spectrogram = np.abs(stft)
+        log_spectrogram = librosa.amplitude_to_db(spectrogram)
         log_norm = normalizer(log_spectrogram, 0, 1, self.spec_min, self.spec_max, mode = 'normalise')
         return log_norm.reshape(1, 257, 256)
 
     def predict_audio(self, speech_path, rir_path):
         reverb, clean = self.generate_audios(speech_path, rir_path)
         reverb_frames, n_pad = self.audio_framing(reverb) #Mismas dimensiones con pads
-        
+
         predict = []
         for frame_index in range(reverb_frames.shape[0]):
             frame_ready = self.preProcessing(reverb_frames[frame_index])
@@ -118,7 +118,7 @@ class Evaluate_model():
                 self.SDR.append(self.sdr(clean, reverb, dereverb))
                 self.ESTOI.append(self.estoi(clean, reverb, dereverb))
         return #reverb, clean, dereverb
-    
+
     def save_results(self, filename):
         srmr_reverb = [i[0] for i in self.SRMR]
         srmr_dereverb = [i[1] for i in self.SRMR]
@@ -152,4 +152,4 @@ weights_path = '/home/martin/Documents/tesis/src/model/ckpts/weights.hdf5'
 evaluacion = Evaluate_model(audio_list, rir_list, weights_path)
 evaluacion.calculate_metrics()
 evaluacion.save_results('experiments/csv/exp1/octagon.csv')
-   
+

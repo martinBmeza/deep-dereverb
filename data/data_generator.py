@@ -11,11 +11,11 @@ def building_loop(speech_list, rir_list, save_path):
         rir_path = np.random.choice(rir_list)
 
         #Genero los espectros
-        clean_stft, reverb_stft = get_specs_from_path(rir_path, speech_path, FACTOR=70)
+        clean_stft, reverb_stft = get_specs_from_path(rir_path, speech_path)
 
         #Framing
-        clean_frames = img_framing_pad(clean_stft, winsize=256, step=256, dim=1)
-        reverb_frames = img_framing_pad(reverb_stft, winsize=256, step=256, dim=1)
+        clean_frames = img_framing(clean_stft, winsize=256, step=256, dim=1)
+        reverb_frames = img_framing(reverb_stft, winsize=256, step=256, dim=1)
 
         for frame in range(clean_frames.shape[0]):
             np.save(save_path+str(contador)+'.npy',[reverb_frames[frame,:,:], clean_frames[frame,:,:]])

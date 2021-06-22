@@ -15,13 +15,13 @@ def autoencoder():
     eps = np.finfo(float).eps
 
     reverb_in = tfkl.Input((256,256), name = 'Entrada_reverb')
-    clean_in = tfkl.Input((256,256), name = 'Entrada_clean')
+    #clean_in = tfkl.Input((256,256), name = 'Entrada_clean')
 
     #Acondicionamiento
     reverb = tf.expand_dims(reverb_in,axis=-1, name='Reverb')
     #reverb = tfkl.Cropping2D(((0,1),(0,0)), name='ESPECTRO_REVERB')(reverb)
 
-    clean = tf.expand_dims(clean_in,axis=-1, name= 'Clean')
+    #clean = tf.expand_dims(clean_in,axis=-1, name= 'Clean')
     #clean = tfkl.Cropping2D(((0,1),(0,0)), name = 'ESPECTRO_CLEAN')(clean)
 
 
@@ -65,7 +65,8 @@ def autoencoder():
     dec = tfkl.BatchNormalization(name = 'BATCH9')(dec)
     dec = tfkl.Dropout(rate = 0.5)(dec)
     dec = tfkl.ReLU()(dec)
-    dec = tfkl.Concatenate(axis=-1)([dec, enc_7])
+    #dec = tfkl.Concatenate(axis=-1)([dec, enc_7])
+    dec = tfkl.Add()([dec, enc_7])
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
     dec = tfkl.Conv2D(512, kernel_size=(5,5), strides=1, padding='SAME', name='CONV10')(dec)
@@ -73,7 +74,8 @@ def autoencoder():
     dec = tfkl.BatchNormalization(name = 'BATCH10')(dec)
     dec = tfkl.Dropout(rate = 0.5)(dec)
     dec = tfkl.ReLU()(dec)
-    dec = tfkl.Concatenate(axis=-1)([dec, enc_6])
+    #dec = tfkl.Concatenate(axis=-1)([dec, enc_6])
+    dec = tfkl.Add()([dec, enc_6])
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
     dec = tfkl.Conv2D(512, kernel_size=(5,5), strides=1, padding='SAME', name='CONV11')(dec)
@@ -81,38 +83,44 @@ def autoencoder():
     dec = tfkl.BatchNormalization(name = 'BATCH11')(dec)
     dec = tfkl.Dropout(rate = 0.5)(dec)
     dec = tfkl.ReLU()(dec)
-    dec = tfkl.Concatenate(axis=-1)([dec, enc_5])
+    #dec = tfkl.Concatenate(axis=-1)([dec, enc_5])
+    dec = tfkl.Add()([dec, enc_5])
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
     dec = tfkl.Conv2D(512, kernel_size=(5,5), strides=1, padding='SAME', name='CONV12')(dec)
     #dec = tfkl.Conv2DTranspose(256, kernel_size=(4,4), strides=2, padding='SAME', name='CONV12')(dec)
     dec = tfkl.BatchNormalization(name = 'BATCH12')(dec)
     dec = tfkl.ReLU()(dec)
-    dec = tfkl.Concatenate(axis=-1)([dec, enc_4])
+    #dec = tfkl.Concatenate(axis=-1)([dec, enc_4])
+    dec = tfkl.Add()([dec, enc_4])
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec) #PROVISORIO
     dec = tfkl.Conv2D(256, kernel_size=(5,5), strides=1, padding='SAME', name='CONV13')(dec)
     #dec = tfkl.Conv2DTranspose(128, kernel_size=(4,4), strides=2, padding='SAME', name='CONV13')(dec)
     dec = tfkl.BatchNormalization(name = 'BATCH13')(dec)
     dec = tfkl.ReLU()(dec)
-    dec = tfkl.Concatenate(axis=-1)([dec, enc_3])
+    #dec = tfkl.Concatenate(axis=-1)([dec, enc_3])
+    dec = tfkl.Add()([dec, enc_3])
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
     dec = tfkl.Conv2D(128, kernel_size=(5,5), strides=1, padding='SAME', name='CONV14')(dec)
     #dec = tfkl.Conv2DTranspose(64, kernel_size=(4,4), strides=2, padding='SAME', name='CONV14')(dec)
     dec = tfkl.BatchNormalization(name = 'BATCH14')(dec)
     dec = tfkl.ReLU()(dec)
-    dec = tfkl.Concatenate(axis=-1)([dec, enc_2])
+    #dec = tfkl.Concatenate(axis=-1)([dec, enc_2])
+    dec = tfkl.Add()([dec, enc_2])
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
     dec = tfkl.Conv2D(64, kernel_size=(5,5), strides=1, padding='SAME', name='CONV15')(dec)
     #dec = tfkl.Conv2DTranspose(32, kernel_size=(4,4), strides=2, padding='SAME', name='CONV15')(dec)
     dec = tfkl.BatchNormalization(name = 'BATCH15')(dec)
     dec = tfkl.ReLU()(dec)
-    dec = tfkl.Concatenate(axis=-1)([dec, enc_1])
+    #dec = tfkl.Concatenate(axis=-1)([dec, enc_1])
+    dec = tfkl.Add()([dec, enc_1])
+
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
-    dec = tfkl.Conv2D(1, kernel_size=(5,5), strides=1, padding='SAME', activation='tanh',name='SALIDA_DEL_DECODER')(dec)
+    dec = tfkl.Conv2D(1, kernel_size=(5,5), strides=1, padding='SAME', activation='relu', name='SALIDA_DEL_DECODER')(dec)
     #dec = tfkl.Activation('tanh', name = 'SALIDA_DEL_DECODER')(dec)
     #dec = tfkl.Conv2DTranspose(1, kernel_size=(4,4), strides=2, padding='SAME', activation='tanh', name='CONV16')(dec)
 
@@ -121,7 +129,7 @@ def autoencoder():
 
     modelo = tf.keras.Model(inputs=[reverb_in], outputs=[clean_predict])
 
-    modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss=tf.keras.losses.MeanSquaredError())
+    modelo.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=0.001), loss='mse')
 
     return modelo
 
