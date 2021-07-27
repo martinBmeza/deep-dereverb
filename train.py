@@ -5,7 +5,7 @@ sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
 
 #Data generators
 from model.data_loader import build_generators
-params = {'path':'/mnt/datasets/npy_data/con_aumentados/', 'batch_size' : 16, 'dim' : (256, 256)}
+params = {'path':'/mnt/datasets/npy_data/con_aumentados/', 'batch_size' : 32, 'dim' : (256, 256)}
 training_generator, validation_generator = build_generators(params)
 
 #defino el modelo
@@ -22,6 +22,6 @@ modelo.summary()
 history = modelo.fit(training_generator,
                      validation_data =  validation_generator,
                      use_multiprocessing = False,
-                     workers=12, epochs=10,
-                     callbacks = cbks)
+                     workers=12, epochs=10)
+                     #callbacks = cbks)
 #modelo.save_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_prueba_general.hdf5')

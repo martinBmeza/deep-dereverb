@@ -22,8 +22,8 @@ def get_DRR(rir, fs, window_length = 0.0025):
     early= rir[init_idx:final_idx]
     late = rir[final_idx:]
 
-    late = np.concatenate((np.zeros(len(early)),late))
-    early = np.concatenate((early, np.zeros(len(late))))
+    #late = np.concatenate((np.zeros(len(early)),late))
+    #early = np.concatenate((early, np.zeros(len(late))))
 
     DRR = 10*np.log10((early**2).sum()/(late**2).sum())
     return DRR, early, late
@@ -77,8 +77,8 @@ def drr_aug(rir, fs, DRR_buscado, window_lenght=0.0025):
     rir_aug = np.concatenate((delay, new_early, late), dtype='float32')
 
     DRR = 10*np.log10((new_early**2).sum()/(late**2).sum())
-    #print("DRR buscado: {:0.2f}, DRR obtenido: {:0.2f}".format(DRR_buscado, DRR))
-    return rir_aug
+    print("DRR buscado: {:0.2f}, DRR obtenido: {:0.2f}".format(DRR_buscado, DRR))
+    return rir_aug/np.max(abs(rir_aug))
 
 def bhaskara(a, b, c):
     r = b**2 - 4*a*c

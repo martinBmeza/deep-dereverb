@@ -122,10 +122,6 @@ def img_framing(data, winsize=256, step=256, dim=1):
         out[frame,:,:] = normalise(out[frame,:,:])
     return out
 
-def normalise(array):
-        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
-        return norm_array
-
 def img_framing_pad(data, winsize=256, step=256, dim=1):
     time = data.shape[dim]
     n_frames = int(time/winsize)

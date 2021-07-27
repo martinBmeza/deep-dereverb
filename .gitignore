@@ -4,6 +4,7 @@ data/speech/
 data/rir/
 data/.speech/
 data/.rir/
+*.ipynb_checkpoints
 *.npy
 *.pyc
 *.swp
