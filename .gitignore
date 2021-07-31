@@ -1,21 +1,19 @@
-# If the pattern doesn’t start with a slash, it matches files and directories in any directory or subdirectory.
-# If the pattern ends with a slash, it matches only directories. When a directory is ignored, all of its files and subdirectories are also ignored
-data/speech/
-data/rir/
-data/.speech/
-data/.rir/
+# Python
 *.ipynb_checkpoints
 *.npy
 *.pyc
+
+# vim
 *.swp
 *.swo
-*.bak/
-notebooks/
-model/ckpts/*
-tmp/
-tb_logs/
-resultados_parciales/
+
+
+# Archivos de audio
 *.wav
 *.WAV
 *.flac
 *.FLAC
+
+# Archivos de entrenamiento
+*.hdf5
+*.logs
