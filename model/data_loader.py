@@ -1,12 +1,12 @@
 """Alimentar con datos al bucle de entrenamiento"""
-import keras
+from tensorflow.keras.utils import Sequence
 import numpy as np
 import os
 import glob
 import random
 import librosa
 
-class DataGenerator(keras.utils.Sequence):
+class DataGenerator(Sequence):
     'Generates data for Keras'
     def __init__(self, list_IDs, path='', batch_size=8, dim=(32767), n_channels=1,  shuffle=True):
         'Initialization'
