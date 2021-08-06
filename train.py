@@ -1,12 +1,15 @@
 import sys
 import tensorflow as tf
-MAIN_PATH="/home/martin/Documents/tesis/src"
-sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
+#MAIN_PATH="/home/martin/Documents/tesis/src"
+#sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
 
 #Data generators
 from model.data_loader import build_generators
-params = {'path':'/mnt/datasets/npy_data/con_aumentados/', 'batch_size' : 8, 'dim' : (256, 256)}
-training_generator, validation_generator = build_generators(params)
+
+CLEAN_PATH = '/home/martin/deep-dereverb/data/prueba/clean/'
+REVERB_PATH =  '/home/martin/deep-dereverb/data/prueba/reverb/'
+BATCH_SIZE = 8
+train_gen, val_gen = build_generators(CLEAN_PATH,REVERB_PATH,BATCH_SIZE)
 
 #defino el modelo
 from model.network_architecture import autoencoder
@@ -19,8 +22,8 @@ cbks = [tf.keras.callbacks.EarlyStopping(monitor='loss',restore_best_weights=Tru
 modelo.summary()
 #Entreno
 #modelo.load_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_TIMIT.hdf5')
-history = modelo.fit(training_generator,
-                     validation_data =  validation_generator,
+history = modelo.fit(train_gen,
+                     validation_data =  val_gen,
                      use_multiprocessing = True,
                      workers=12, max_queue_size=16384, epochs=10)
                      #callbacks = cbks)

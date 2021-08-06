@@ -10,7 +10,7 @@ import tensorflow as tf
 import sys
 sys.path.append('/home/martin/Documents/tesis/src/')
 sys.path.append('/home/martin/Documents/tesis/SRMRpy/srmrpy')   
-import srmr
+import srmrpy as srmr
 import mir_eval
 import pystoi
 from model.network_architecture import autoencoder
@@ -147,8 +147,6 @@ def prepare_save_path(path):
     else:
         os.mkdir(path)
     return(path)
-
-
 
 def predict_model(data, modelo):
   output = [layer.name for layer in modelo.layers]

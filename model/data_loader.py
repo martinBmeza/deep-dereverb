@@ -1,20 +1,23 @@
 """Alimentar con datos al bucle de entrenamiento"""
+import sys
+MAIN_PATH='/home/martin/deep-dereverb/model'
+sys.path.append(MAIN_PATH) #Para poder importar archivos .py como librerias
 from tensorflow.keras.utils import Sequence
 import numpy as np
 import os
 import glob
 import random
 import librosa
+import soundfile as sf
+import pandas as pd
 
 class DataGenerator(Sequence):
     'Generates data for Keras'
-    def __init__(self, list_IDs, path='', batch_size=8, dim=(32767), n_channels=1,  shuffle=True):
+    def __init__(self, dataframe, list_IDs, batch_size=8, shuffle=True):
         'Initialization'
-        self.path = path
-        self.dim = dim
-        self.batch_size = batch_size
+        self.dataframe = dataframe
         self.list_IDs = list_IDs
-        self.n_channels = n_channels
+        self.batch_size = batch_size
         self.shuffle = shuffle
         self.on_epoch_end()
 
@@ -48,49 +51,94 @@ class DataGenerator(Sequence):
         x_reverb = np.empty((self.batch_size, 256, 256))
 
         # Generate data
-        for i, ID in enumerate(list_IDs_temp):
+        for i, ID in enumerate(list_IDs_temp): 
 
-            reverb, clean = np.load(self.path + str(ID) + '.npy')
+            reverb, clean = gen_stft(self.dataframe, ID)
             x_clean[i], x_reverb[i] = clean, reverb
-            #print(self.path + str(ID) + '.npy')
-            #import pdb; pdb.set_trace()
         
-        return x_reverb, x_clean
+        return x_reverb, x_clean  # [input, ground truth]
 
 
-def build_generators(params):
-    """
-    Crea instancias de la clase DataGenerator (para entrenamiento y valdiacion) a partir de un diccionario donde se determinan los parametros
-    del generador de datos, y el path principal.
-
-    PARAMETROS:
-        -MAIN_PATH (str) path principal de la carpeta de trabajo
-        -params (dict) diccionario con los campos 'dim'(int), 'batch_size'(int), 'shuffle'(bool) para configurar el generador de datos
-        -subpath (str) path de la carpeta dentro de data/ de donde tomar los datos. Por defecto esta asignada a 'data_ready' que es donde se encuentran
-        los datos procesados. Puede ser util cambiarla a la carpeta data_dummy para trabajar con los datos dummy en ocasiones de debuggeo
-
-    SALIDA:
-        -training_generator (DataGenerator) instancia de clase que contiene los datos para pasarse a una instancia de entrenamiento y proveer
-            los datos de entrenamiento al modelo
-        -validation_generator (DataGenerator) instancia de clase que contiene los datos para pasarse a una instancia de entrenamiento y proveer
-            los datos de validacion al modelo
-
-        """
-
-    audio_list = glob.glob(params['path']+'/**/*.npy', recursive = True)
+def build_generators(clean_path, reverb_path, batch, alpha=0.9):
+    # Generacion del dataframe
+    dataframe = speech_dataframe(clean_path, reverb_path)
 
     #seleccion random de sets
-    audio_numbers = list(range(0, len(audio_list)))
+    audio_numbers = list(range(0, len(dataframe)))
     random.shuffle(audio_numbers)
-    train_n = int(len(audio_numbers)*0.9)
+    train_n = int(len(audio_numbers)*alpha)
     validation_n = len(audio_numbers) - train_n
 
-    partition = {'train' : audio_numbers[:train_n], 'validation' : audio_numbers[train_n:]}
-
+    partition = {'train' : audio_numbers[:train_n],
+                'val' : audio_numbers[train_n:]}
     # Generators
-    training_generator = DataGenerator(partition['train'], **params)
-    validation_generator = DataGenerator(partition['validation'], **params)
+    train_gen=DataGenerator(dataframe,partition['train'], batch_size=batch)
+    val_gen=DataGenerator(dataframe,partition['val'], batch_size=batch)
+    return train_gen, val_gen
 
-    print('Cantidad de datos para entrenamiento:', len(partition['train']))
-    print('Cantidad de datos para validacion:', len(partition['validation']))
-    return training_generator, validation_generator
+EPS = np.finfo(float).eps
+
+def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
+    search_path = path + '/**/*'
+    audio_list = []
+    for file_type in file_types:
+        audio_list.extend(glob.glob(search_path+file_type, recursive=True))
+    return audio_list
+
+def normalise(array):
+        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
+        return norm_array
+ 
+
+def audio_chunk(paths, win_size=32640, hop_size=32640):
+    """Recibe un path de audio y devuelve el path, los puntos de comienzo
+	y final para recortar el audio, y la frecuencia de sampleo."""
+    clean_path = paths[0]
+    reverb_path = paths[1]
+  
+    nframes = sf.info(clean_path, verbose = True).frames
+    
+    start = np.array(range(0,nframes-win_size,hop_size), dtype='int32')
+    end = start + win_size
+    return  clean_path, reverb_path, start, end
+
+def speech_dataframe(clean_path, reverb_path):
+    clean_list = get_audio_list(clean_path)
+    clean_list.sort()
+
+    reverb_list = get_audio_list(reverb_path)
+    reverb_list.sort()
+
+    audio_list = [[clean_list[i], reverb_list[i]] for i in range(len(clean_list))]
+
+    dicts = [{'clean_path':audio[0],'reverb_path':audio[1],\
+            'start': audio[2],'end':audio[3]}\
+             for audio in map(audio_chunk, audio_list)]
+
+    df_speech = pd.concat(map(pd.DataFrame, dicts), axis=0, ignore_index = True)
+    
+    return df_speech
+
+def gen_stft(dataframe, ID):
+    clean_path = dataframe.iat[ID, 0]
+    reverb_path = dataframe.iat[ID, 1]
+    start, end = dataframe.iat[ID, 2], dataframe.iat[ID, 3]
+
+    clean, _ = sf.read(clean_path, start=start, stop=end)
+    reverb, _ = sf.read(reverb_path, start=start, stop=end)
+
+    #Genero las STFT
+    stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)[:-1,:]# Descarto altas frecuencias
+    stft_clean = np.abs(stft_clean)
+    stft_reverb = librosa.stft(reverb, n_fft=512, hop_length=128)[:-1,:]
+    stft_reverb = np.abs(stft_reverb)
+
+    #Escala logaritmica
+    log_stft_clean = librosa.amplitude_to_db(stft_clean)
+    log_stft_reverb = librosa.amplitude_to_db(stft_reverb)
+
+    #Normalizacion
+    norm_stft_reverb = normalise(log_stft_reverb)
+    norm_stft_clean = normalise(log_stft_clean)
+    return norm_stft_reverb, norm_stft_clean
+
