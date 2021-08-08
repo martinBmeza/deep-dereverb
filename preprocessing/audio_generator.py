@@ -7,6 +7,28 @@ import librosa
 import soundfile as sf
 from scipy.signal import fftconvolve
 
+def reverberacion(speech_path, rir_path, clean_save, reverb_save, c, target=False):
+    # Cargo los audios
+    speech, speech_fs = librosa.load(speech_path, sr=16000)
+    rir, rir_fs = librosa.load(rir_path, sr=16000)
+    
+    speech = speech / np.max(abs(speech))
+    reverb = generar_reverb(speech, rir)
+    clean = speech
+    ventana = int(32640)
+    for i in range(len(clean)//ventana):   
+        if target:
+            clean_cut = clean[int(ventana*i):int(ventana*(i+1))]
+            clean_fn = clean_save+'{:06d}'.format(c)+ '.wav'
+            sf.write(clean_fn, clean_cut, speech_fs)
+ 
+        reverb_cut = reverb[int(ventana*i):int(ventana*(i+1))]
+        reverb_fn = reverb_save+'{:06d}'.format(c)+ '.wav'
+        sf.write(reverb_fn, reverb_cut, speech_fs) 
+        c +=1
+    return c
+
+
 def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
     search_path = path + '/**/*'
     audio_list = []
@@ -14,12 +36,14 @@ def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
         audio_list.extend(glob.glob(search_path+file_type, recursive=True))
     return audio_list
 
+
 def temporal_decompose(rir, Q_e):
     inicio = np.argmax(abs(rir)) # direct path
     early = rir[inicio:inicio+Q_e]
     late = rir[inicio+Q_e:]
     rir = rir[inicio:]
     return rir
+
 
 def generar_reverb(speech, rir):
     # Normalizo el impulso y el speech
@@ -30,20 +54,8 @@ def generar_reverb(speech, rir):
 
     # Convoluciono. Obtengo audio con reverb
     reverb = fftconvolve(speech, rir_completa)[:len(speech)]
-    # Convoluciono y padeo el audio anecoico. Obtengo el audio clean
+    reverb = reverb / np.max(abs(reverb))
     return reverb
-
-
-# FALTA HACER: Pasar esto a una funcion, donde los parametros
-#sean los paths de entrada, salida y alguna otra referencia mas
-#si es necesaria para despues
-
-#Lo mejor seria hacer en un sol bucle la generacion de todos los datos,
-#asi me aseguro de darle el mismo nombre al audio clean y a TODOS sus
-#correspondientes versiones reverberadas. Tampoco son tantas, 
-#Raeal, sintetica, aumentada. De esta manera genero la menor cantidad de datos
-#y como tengo esta numeracion homogenea entre sets, puedo hacer la seleccion de 
-#conjuntos de datos sin preocuparme por overlapping entre audios ni nada de eso
 
 save_clean_path = '/mnt/datasets/train/clean/'
 save_real_path = '/mnt/datasets/train/real/'
@@ -64,39 +76,14 @@ rir_aug_list = glob.glob(rir_aug_path+'/**/*.wav', recursive=True)
 
 n = 0
 for speech_path in tqdm.tqdm(speech_list):
-
+    
     rir_real_rnd = np.random.choice(rir_real_list)
     rir_gen_rnd = np.random.choice(rir_gen_list)
     rir_aug_rnd = np.random.choice(rir_aug_list)
-
-    # Cargo los audios
-    speech, speech_fs = librosa.load(speech_path, sr=16000)
-    rir_real, rir_fs = librosa.load(rir_real_rnd, sr=16000)
-    rir_gen, rir_fs = librosa.load(rir_gen_rnd, sr=16000)
-    rir_aug, rir_fs = librosa.load(rir_aug_rnd, sr=16000)
     
-    speech = speech / np.max(abs(speech))
-        
-    #import pdb; pdb.set_trace()
-    reverb_real = generar_reverb(speech, rir_real)
-    reverb_gen = generar_reverb(speech, rir_gen)
-    reverb_aug = generar_reverb(speech, rir_aug)
-    
-    #CAMBIO:ESTIMO SPEECH Y NO PARTE EARLY
-    #clean = fftconvolve(speech, rir_early)
+    _ = reverberacion(speech_path, rir_real_rnd, save_clean_path, save_real_path, n, target=True)
+    _ = reverberacion(speech_path, rir_gen_rnd, save_clean_path, save_gen_path, n, target=False)
+    n = reverberacion(speech_path, rir_aug_rnd, save_clean_path, save_aug_path, n, target=False)
+   
 
-    clean = speech
-    
-    # Guardo los pares en carpetas
-    clean_fn = save_clean_path+'{:06d}'.format(n)+ '.wav'
-    reverb_real_fn = save_real_path+'{:06d}'.format(n)+ '.wav'
-    reverb_gen_fn = save_gen_path+'{:06d}'.format(n)+ '.wav'
-    reverb_aug_fn =save_aug_path+'{:06d}'.format(n)+ '.wav'
-
-    sf.write(clean_fn, clean, speech_fs)
-    sf.write(reverb_real_fn, reverb_real, speech_fs )
-    sf.write(reverb_gen_fn, reverb_gen, speech_fs ) 
-    sf.write(reverb_aug_fn, reverb_aug, speech_fs )
-    n +=1
-##########################################################################
 

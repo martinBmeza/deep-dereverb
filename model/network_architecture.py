@@ -21,9 +21,9 @@ def autoencoder():
                 'strides' : 1,
                 'padding' : 'SAME'}
     
-    #f = [64, 128, 256, 512, 512, 512, 512, 512] # filters
+    f = [64, 128, 256, 512, 512, 512, 512, 512] # filters
     
-    f = [8, 16, 32, 64, 128, 256, 512, 1024] # filters
+    #f = [8, 16, 32, 64, 128, 256, 512, 1024] # filters
 
     tf.keras.backend.clear_session()
     eps = np.finfo(float).eps
