@@ -1,6 +1,6 @@
 import tensorflow as tf
 import pandas as pd
-
+import numpy as np
 #Data generators
 from model.data_loader import build_generators
 

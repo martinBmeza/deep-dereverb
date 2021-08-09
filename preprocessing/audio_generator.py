@@ -57,6 +57,33 @@ def generar_reverb(speech, rir):
     reverb = reverb / np.max(abs(reverb))
     return reverb
 
+# TEST
+save_clean = '/home/martin/deep-dereverb/data/test/clean/'
+save_realC4DM = '/home/martin/deep-dereverb/data/test/C4DM/'
+#save_room1 = '/home/martin/deep-dereverb/data/test/room1/'
+#save_room2 = 
+
+speech_path = '/mnt/Tesis/test/speech/test-clean'
+speech_list = glob.glob(speech_path+'/**/*.flac', recursive=True)
+
+rir_realC4DM = '/mnt/datasets/impulsos/reales/C4DM'
+rir_realC4DM_list =glob.glob(rir_realC4DM+'/**/*.wav', recursive=True)
+
+n = 0
+for speech_path in tqdm.tqdm(speech_list):
+    
+    rir_realC4DM_rnd = np.random.choice(rir_realC4DM_list)
+    #rir_gen_rnd = np.random.choice(rir_gen_list)
+    #rir_aug_rnd = np.random.choice(rir_aug_list)
+    
+    n = reverberacion(speech_path, rir_realC4DM_rnd, save_clean, save_realC4DM, n, target=True)
+    #_ = reverberacion(speech_path, rir_gen_rnd, save_clean_path, save_gen_path, n, target=False)
+    #n = reverberacion(speech_path, rir_aug_rnd, save_clean_path, save_aug_path, n, target=False)
+
+
+
+"""
+# TRAIN
 save_clean_path = '/mnt/datasets/train/clean/'
 save_real_path = '/mnt/datasets/train/real/'
 save_gen_path = '/mnt/datasets/train/gen/'
@@ -84,6 +111,6 @@ for speech_path in tqdm.tqdm(speech_list):
     _ = reverberacion(speech_path, rir_real_rnd, save_clean_path, save_real_path, n, target=True)
     _ = reverberacion(speech_path, rir_gen_rnd, save_clean_path, save_gen_path, n, target=False)
     n = reverberacion(speech_path, rir_aug_rnd, save_clean_path, save_aug_path, n, target=False)
-   
+"""
 
 
