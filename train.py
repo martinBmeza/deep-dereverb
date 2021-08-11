@@ -1,14 +1,13 @@
 import tensorflow as tf
 import pandas as pd
 import numpy as np
-#Data generators
 from model.data_loader import build_generators
 
 BATCH_SIZE = 8
-DATAFRAME = pd.read_pickle('data/dataset_reales.pkl')
+DATAFRAME = pd.read_pickle('data/train/dataset_aug.pkl')
 train_gen, val_gen = build_generators(DATAFRAME, BATCH_SIZE)
 
-#defino el modelo
+# Defino el modelo
 from model.network_architecture import autoencoder
 modelo = autoencoder()
 
@@ -18,6 +17,7 @@ cbks = [tf.keras.callbacks.EarlyStopping(monitor='loss',restore_best_weights=Tru
         #tf.keras.callbacks.TensorBoard(log_dir='tb_logs',profile_batch=0, update_freq='epoch', histogram_freq=1)]
 
 modelo.summary()
+
 #Entreno
 #modelo.load_weights('/home/martin/Documents/tesis/src/model/ckpts/weights_TIMIT.hdf5')
 history = modelo.fit(train_gen,
