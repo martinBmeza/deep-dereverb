@@ -25,7 +25,7 @@ def reverb_multiprocessing(audio_list, rir_list, save):
     """
 
     tasks = [[audio_list[i], np.random.choice(rir_list), save] for i in range(len(audio_list))]
-    pool = mp.Pool(processes=10)
+    pool = mp.Pool(processes=5)
     for _ in tqdm(pool.imap(reverberacion, tasks), total=len(tasks)):
         pass
     pool.close()
@@ -47,7 +47,7 @@ def clean_multiprocessing(audio_list, save):
     """
 
     tasks = [[audio_list[i], save] for i in range(len(audio_list))]
-    pool = mp.Pool(processes=10)
+    pool = mp.Pool(processes=5)
     for _ in tqdm(pool.imap(clean_cut, tasks), total=len(tasks)):
         pass
     pool.close()
@@ -145,10 +145,10 @@ def generar_reverb(speech, rir):
     rir = rir / np.max(abs(rir))
     rir = rir[np.argmax(abs(rir)):]  
     # Divido parte early - elimino el delay
-    rir_completa = temporal_decompose(rir, Q_e = 32)
+    #rir_completa = temporal_decompose(rir, Q_e = 32)
 
     # Convoluciono. Obtengo audio con reverb
-    reverb = fftconvolve(speech, rir_completa)[:len(speech)]
+    reverb = fftconvolve(speech, rir)[:len(speech)]
     reverb = reverb / np.max(abs(reverb))
     return reverb
 

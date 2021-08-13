@@ -12,7 +12,7 @@ def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
         audio_list.extend(glob.glob(search_path+file_type, recursive=True))
     return audio_list
 
-
+"""
 # TRAIN
 save_clean_path = '/home/martin/deep-dereverb/data/train/clean/'
 save_real_path = '/home/martin/deep-dereverb/data/train/real/'
@@ -51,3 +51,29 @@ train = {'save' : save, 'list' : lists}
 if __name__ == '__main__':
     with open('paths.pkl', 'wb') as f:
         pickle.dump(train, f)
+"""
+
+# TEST
+save_clean_path = '/home/martin/deep-dereverb/data/test/clean/'
+save_real_path = '/home/martin/deep-dereverb/data/test/real/'
+
+speech_path = '/media/martin/martindrive/test/speech/'
+speech_list = glob.glob(speech_path+'/**/*.flac', recursive=True)
+speech_list = audio_number(speech_list)
+print('{} archivos de habla'.format(len(speech_list)))
+
+rir_real_path = '/media/martin/martindrive/test/rir_reales/'
+rir_real_list =glob.glob(rir_real_path+'/**/*.wav', recursive=True)
+print('{} Respuestas al impulso reales'.format(len(rir_real_list)))
+
+save = {'clean' : save_clean_path,
+        'real' : save_real_path}
+
+lists = {'speech' : speech_list,
+         'real' : rir_real_list}
+
+test = {'save' : save, 'list' : lists}
+
+if __name__ == '__main__':
+    with open('test_paths.pkl', 'wb') as f:
+        pickle.dump(test, f)

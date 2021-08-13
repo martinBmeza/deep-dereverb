@@ -5,15 +5,13 @@ from scipy.signal import fftconvolve, stft
 import tensorflow as tf
 
 import sys
-sys.path.append('/home/martin/Documents/tesis/src/')
+#sys.path.append('/home/martin/Documents/tesis/src/')
 sys.path.append('/home/martin/Documents/tesis/SRMRpy/srmrpy')   
 import srmrpy as srmr
 import mir_eval
 import pystoi
 from model.network_architecture import autoencoder
 EPS = np.finfo(float).eps
-
-
 
 def get_metricas(clean, reverb, fs):
     SRMR = srmr.srmr(reverb, fs)[0]

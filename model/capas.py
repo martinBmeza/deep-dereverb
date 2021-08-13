@@ -6,7 +6,7 @@ import tensorflow as tf
 import tensorflow.keras.layers as tfkl
 from scipy.signal import stft, istft 
 import numpy as np
-import keras
+#import keras
 
 
 class Spectrogram(tfkl.Layer):
