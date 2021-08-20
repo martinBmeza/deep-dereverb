@@ -97,7 +97,7 @@ def sub_band_decompose(rir, fs, params):
 
 
 def generate_complementary_filterbank(
-        fc=[125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0],
+        fc=[125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0],
         fs=16000,
         filter_order=4,
         filter_length=16384,
@@ -111,7 +111,7 @@ def generate_complementary_filterbank(
         filter_length - length of the resulting zero-phase FIR filters
         power - boolean to set if the filter is power or amplitude complementary
     """
-
+    fc = [i*np.power(2,1/2) for i in fc]
     # sort in increasing cutoff
     fc = np.sort(fc)
 
@@ -151,10 +151,11 @@ def generate_complementary_filterbank(
 
     return ir2Bands
 
-def plot_bankfilter(bankfilter, params):
+def plot_bankfilter(params):
     bankfilter = generate_complementary_filterbank(**params)
     h_sum = np.zeros(8000)
-    for banda in tqdm.tqdm(range(7)): 
+    fs=16000
+    for banda in range(7): 
         w, h = scipy.signal.freqz(bankfilter[:,banda], worN=8000)
         h_sum += abs(h)
         plt.semilogx((w/np.pi)*(fs/2), abs(h), linewidth=2, label = str(params['fc'][banda])+' Hz')
@@ -361,7 +362,7 @@ def augmentation(rir, estim_params, estim_fullband_decay ,TR60_desired, fs):
     return rir_aug
 
 def tr_augmentation(rir_entrada, fs, TR_DESEADO):
-    params = {'fc' : [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0, 8000.0],
+    params = {'fc' : [125.0, 250.0, 500.0, 1000.0, 2000.0, 4000.0],
               'fs' : 16000,
               'filter_order' : 4,
               'filter_length' : 16384,
