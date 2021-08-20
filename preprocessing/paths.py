@@ -56,21 +56,37 @@ if __name__ == '__main__':
 # TEST
 save_clean_path = '/home/martin/deep-dereverb/data/test/clean/'
 save_real_path = '/home/martin/deep-dereverb/data/test/real/'
+save_gen_path = '/home/martin/deep-dereverb/data/test/gen/'
+save_aug_path = '/home/martin/deep-dereverb/data/test/aug/'
 
-speech_path = '/media/martin/martindrive/test/speech/'
+speech_path = '/mnt/Tesis/test/speech/'
 speech_list = glob.glob(speech_path+'/**/*.flac', recursive=True)
 speech_list = audio_number(speech_list)
 print('{} archivos de habla'.format(len(speech_list)))
 
-rir_real_path = '/media/martin/martindrive/test/rir_reales/'
+rir_real_path = '/mnt/Tesis/test/rir_reales/' 
 rir_real_list =glob.glob(rir_real_path+'/**/*.wav', recursive=True)
 print('{} Respuestas al impulso reales'.format(len(rir_real_list)))
 
+rir_gen_path = '/mnt/Tesis/test/rir_gen/' 
+rir_gen_list =glob.glob(rir_gen_path+'/**/*.wav', recursive=True)
+print('{} Respuestas al impulso sinteticas'.format(len(rir_gen_list)))
+
+rir_aug_path = '/mnt/Tesis/test/rir_aug'
+rir_aug_list =glob.glob(rir_aug_path+'/**/*.wav', recursive=True)
+print('{} Respuestas al impulso aumentadas'.format(len(rir_aug_list)))
+
+
+
 save = {'clean' : save_clean_path,
-        'real' : save_real_path}
+        'real' : save_real_path,
+        'aug' : save_aug_path,
+        'gen' : save_gen_path}
 
 lists = {'speech' : speech_list,
-         'real' : rir_real_list}
+         'real' : rir_real_list,
+         'aug' : rir_aug_list,
+         'gen' : rir_gen_list}
 
 test = {'save' : save, 'list' : lists}
 

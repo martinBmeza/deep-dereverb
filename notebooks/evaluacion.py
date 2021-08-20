@@ -30,7 +30,7 @@ def frame_to_raw(frame, arr_min, arr_max):
 
     #Para antitransformar necesito la fase. Puedo estimar a partir de griffim lim 
     frame_raw = librosa.griffinlim(frame_lin_pad, 
-                                        n_iter=500,
+                                        n_iter=100,
                                         hop_length=128, 
                                         win_length=512)
     return frame_raw

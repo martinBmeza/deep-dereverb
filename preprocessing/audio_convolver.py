@@ -36,10 +36,22 @@ clean_multiprocessing(audio_list, save)
 with open('test_paths.pkl', 'rb') as f:
     paths = pickle.load(f)
 
-# Generation of real reverbs
+# Generacion reales 
 audio_list = paths['list']['speech']
 rir_list = paths['list']['real']
 save = paths['save']['real']
+reverb_multiprocessing(audio_list, rir_list, save)
+
+# Generacion aug
+audio_list = paths['list']['speech']
+rir_list = paths['list']['aug']
+save = paths['save']['aug']
+reverb_multiprocessing(audio_list, rir_list, save)
+
+# Generacion gen 
+audio_list = paths['list']['speech']
+rir_list = paths['list']['gen']
+save = paths['save']['gen']
 reverb_multiprocessing(audio_list, rir_list, save)
 
 # Clean speech 
