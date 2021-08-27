@@ -4,9 +4,6 @@ import librosa
 from scipy.signal import fftconvolve, stft
 import tensorflow as tf
 
-import sys
-#sys.path.append('/home/martin/Documents/tesis/src/')
-sys.path.append('/home/martin/Documents/tesis/SRMRpy/srmrpy')   
 import srmrpy as srmr
 import mir_eval
 import pystoi

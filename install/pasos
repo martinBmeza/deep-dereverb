@@ -1,5 +1,0 @@
-# Para instalar SRMRpy 
-1 - Clonar el repositorio y correr el script de instalacion. El proceso corre bien y a lo ultimo tiene un error de una dependencia perdida, dando el link de a donde la va a buscar para instalarla.
-2 - Copiar ese link de archivo del Gamatone y descargar el paquete zip desde ese link. 
-3 - Instalar el paquete faltante haciendo pip install . dentro de la carpeta descargada
-4 - Volver a correr el instalador de SRMRpy y deberia instalar todas las dependencias correctamente. 
