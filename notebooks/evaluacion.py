@@ -16,9 +16,9 @@ def get_metricas(clean, reverb, fs):
     ESTOI = pystoi.stoi(clean, reverb, fs, extended = True)
     return SRMR, SDR[0], ESTOI
 
-def frame_to_raw(frame, arr_min, arr_max):
+def frame_to_raw(frame):
 
-    frame = denormalise(frame, arr_min, arr_max)
+    frame = denormalise(frame)
     #Escala logaritmica
     frame_lin = librosa.db_to_amplitude(frame)
 
@@ -27,19 +27,31 @@ def frame_to_raw(frame, arr_min, arr_max):
 
     #Para antitransformar necesito la fase. Puedo estimar a partir de griffim lim 
     frame_raw = librosa.griffinlim(frame_lin_pad, 
-                                        n_iter=100,
+                                        n_iter=1000,
                                         hop_length=128, 
                                         win_length=512)
     return frame_raw
 
 
-def normalise(array):
-        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
-        return norm_array, array.min(), array.max()
-    
-def denormalise(norm_array, original_min, original_max):
-        array = norm_array * (original_max - original_min) + original_min
-        return array
+#def normalise(array):
+#        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
+#        return norm_array, array.min(), array.max()
+
+#def denormalise(norm_array, original_min, original_max):
+#    array = norm_array * (original_max - original_min) + original_min
+#    return array
+
+def denormalise(array):
+    array_min = -65
+    array_max = 65
+    array = (array * (array_max - array_min)) + array_min
+    return array
+
+def normalise(array):                                                                                                           
+    array_min = -65
+    array_max = 65
+    norm_array = (array - array_min) / (array_max - array_min + EPS)
+    return norm_array 
 
 def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
     search_path = path + '/**/*'
@@ -56,9 +68,8 @@ def gen_stft(audio):
     log_stft_ = librosa.amplitude_to_db(stft_)
 
     #Normalizacion
-    norm_stft_, arr_min, arr_max = normalise(log_stft_)
-    return norm_stft_, arr_min, arr_max
-
+    norm_stft_ = normalise(log_stft_)
+    return norm_stft_
 
 
 def predict_model(data, modelo):

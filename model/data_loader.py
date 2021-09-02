@@ -54,7 +54,7 @@ class DataGenerator(Sequence):
         for i, ID in enumerate(list_IDs_temp):  
             reverb, clean = gen_stft(self.dataframe, ID)
             x_clean[i], x_reverb[i] = clean, reverb
-        
+        #import pdb; pdb.set_trace() 
         return x_reverb, x_clean  # [input, ground truth]
 
 
@@ -75,15 +75,17 @@ def build_generators(dataframe, batch, alpha=0.9):
 EPS = np.finfo(float).eps
 
 def normalise(array):
-    norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
+    array_min = -65
+    array_max = 65
+    norm_array = (array - array_min) / (array_max - array_min + EPS)
     return norm_array
 
 def gen_stft(dataframe, ID):
     clean_path = dataframe.iat[ID, 0]
     reverb_path = dataframe.iat[ID, 1]
 
-    clean, _ = sf.read(clean_path)
-    reverb, _ = sf.read(reverb_path)
+    clean = np.load(clean_path)
+    reverb = np.load(reverb_path)
 
     #Genero las STFT
     stft_clean = librosa.stft(clean, n_fft=512, hop_length=128)[:-1,:]# Descarto altas frecuencias

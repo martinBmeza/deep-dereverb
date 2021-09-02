@@ -77,8 +77,8 @@ def clean_cut(task):
     # Cortado y guardado
     for i in range(len(clean)//ventana):
         clean_cut = clean[int(ventana*i):int(ventana*(i+1))]
-        clean_fn = clean_save+'{:06d}'.format(numbers[i])+ '.wav'
-        sf.write(clean_fn, clean_cut, speech_fs)
+        clean_fn = clean_save+'{:06d}'.format(numbers[i])+ '.npy'
+        np.save(clean_fn, clean_cut)
 
 
 def reverberacion(task):
@@ -115,8 +115,8 @@ def reverberacion(task):
     # Cortado y guardado
     for i in range(len(clean)//ventana):
         reverb_cut = reverb[int(ventana*i):int(ventana*(i+1))]
-        reverb_fn = reverb_save+'{:06d}'.format(numbers[i])+ '.wav'
-        sf.write(reverb_fn, reverb_cut, speech_fs)
+        reverb_fn = reverb_save+'{:06d}'.format(numbers[i])+ '.npy'
+        np.save(reverb_fn, reverb_cut)
 
 
 def generar_reverb(speech, rir):
@@ -141,15 +141,12 @@ def generar_reverb(speech, rir):
         Numpy array correspondiente al audio reverberado.
     """
 
-    # Normalizo el impulso y el speech
+    # Normalizo el impulso
     rir = rir / np.max(abs(rir))
     rir = rir[np.argmax(abs(rir)):]  
-    # Divido parte early - elimino el delay
-    #rir_completa = temporal_decompose(rir, Q_e = 32)
-
+    
     # Convoluciono. Obtengo audio con reverb
     reverb = fftconvolve(speech, rir)[:len(speech)]
-    reverb = reverb / np.max(abs(reverb))
     return reverb
 
 

@@ -13,24 +13,23 @@ save = paths['save']['real']
 reverb_multiprocessing(audio_list, rir_list, save)
 
 # Synthetic reverbs
-audio_list = paths['list']['speech']
-rir_list = paths['list']['gen']
-save = paths['save']['gen']
-reverb_multiprocessing(audio_list, rir_list, save)
+#audio_list = paths['list']['speech']
+#rir_list = paths['list']['gen']
+#save = paths['save']['gen']
+#reverb_multiprocessing(audio_list, rir_list, save)
 
 # Augmented reverbs
-audio_list = paths['list']['speech']
-rir_list = paths['list']['aug']
-save = paths['save']['aug']
-reverb_multiprocessing(audio_list, rir_list, save)
+#audio_list = paths['list']['speech']
+#rir_list = paths['list']['aug']
+#save = paths['save']['aug']
+#reverb_multiprocessing(audio_list, rir_list, save)
 
 # Clean speech 
-audio_list = paths['list']['speech']
+#audio_list = paths['list']['speech']
 save = paths['save']['clean']
 clean_multiprocessing(audio_list, save)
+
 """
-
-
 # TEST
 
 with open('test_paths.pkl', 'rb') as f:
@@ -43,20 +42,19 @@ save = paths['save']['real']
 reverb_multiprocessing(audio_list, rir_list, save)
 
 # Generacion aug
-audio_list = paths['list']['speech']
-rir_list = paths['list']['aug']
-save = paths['save']['aug']
-reverb_multiprocessing(audio_list, rir_list, save)
+#audio_list = paths['list']['speech']
+#rir_list = paths['list']['aug']
+#save = paths['save']['aug']
+#reverb_multiprocessing(audio_list, rir_list, save)
 
 # Generacion gen 
-audio_list = paths['list']['speech']
-rir_list = paths['list']['gen']
-save = paths['save']['gen']
-reverb_multiprocessing(audio_list, rir_list, save)
+#audio_list = paths['list']['speech']
+#rir_list = paths['list']['gen']
+#save = paths['save']['gen']
+#reverb_multiprocessing(audio_list, rir_list, save)
 
 # Clean speech 
-audio_list = paths['list']['speech']
+#audio_list = paths['list']['speech']
 save = paths['save']['clean']
 clean_multiprocessing(audio_list, save)
-
 

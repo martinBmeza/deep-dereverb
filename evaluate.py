@@ -11,13 +11,17 @@ from utils import get_audio_list
 from tqdm import tqdm
 EPS = np.finfo(float).eps
 
-def normalise(array):
-        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
-        return norm_array, array.min(), array.max()
-    
-def denormalise(norm_array, original_min, original_max):
-        array = norm_array * (original_max - original_min) + original_min
-        return array
+def denormalise(array):
+    array_min = -65
+    array_max = 65
+    array = (array * (array_max - array_min)) + array_min
+    return array
+
+def normalise(array):                                                                                                           
+    array_min = -65
+    array_max = 65
+    norm_array = (array - array_min) / (array_max - array_min + EPS)
+    return norm_array 
 
 
 def gen_stft(audio):
@@ -31,12 +35,12 @@ def gen_stft(audio):
     log_stft_ = librosa.amplitude_to_db(stft_)
 
     # normalize
-    norm_stft_, arr_min, arr_max = normalise(log_stft_)
-    return norm_stft_, arr_min, arr_max
+    norm_stft_ = normalise(log_stft_)
+    return norm_stft_
 
 
-def frame_to_raw(frame, arr_min, arr_max):
-    frame = denormalise(frame, arr_min, arr_max)
+def frame_to_raw(frame):
+    frame = denormalise(frame)
     frame_lin = librosa.db_to_amplitude(frame)
 
     # add freq bin (padding)
@@ -58,8 +62,9 @@ def get_metricas(clean, reverb, fs):
 
 
 def test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA):
-    clean_list = get_audio_list(CLEAN_PATH)
-    reverb_list = get_audio_list(REVERB_PATH)
+    clean_list = get_audio_list(CLEAN_PATH, ('.npy'))
+    reverb_list = get_audio_list(REVERB_PATH, ('.npy'))
+    clean_list.sort() ; reverb_list.sort()
 
     modelo = autoencoder()
     modelo.load_weights(PESOS)
@@ -72,17 +77,23 @@ def test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA):
     SDR_dereverb = []
     ESTOI_dereverb = []
 
-    for clean_path, reverb_path in tqdm(zip(clean_list, reverb_list), total=len(clean_list)):
-
+    for clean_path, reverb_path in tqdm(zip(clean_list[:100], reverb_list), total=len(clean_list)):
+        
         # read files
-        clean, fs = librosa.load(clean_path, sr=None)
-        reverb, fs = librosa.load(reverb_path, sr=None)
+        fs = 16000
+        clean = np.load(clean_path)
+        reverb = np.load(reverb_path)
 
         # apply model
-        espectro_in, arr_min, arr_max = gen_stft(reverb)
+        espectro_in = gen_stft(reverb)
+        espectro_target = gen_stft(clean)
+
         espectro_out = modelo.predict([espectro_in.reshape(1,256,256)])
         espectro_out = espectro_out.reshape(256,256)
-        dereverb = frame_to_raw(espectro_out, arr_min, arr_max)
+	
+        reverb = frame_to_raw(espectro_in)
+        dereverb = frame_to_raw(espectro_out)
+        clean = frame_to_raw(espectro_target)
 
         # get metrics for clean-reverb
         srmr, sdr, estoi = get_metricas(clean, reverb, fs)
@@ -105,22 +116,33 @@ def test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA):
     np.save(CARPETA+'ESTOI_dereverb.npy', ESTOI_dereverb)
     return
 
+
 if __name__ == '__main__':
+    CLEAN_PATH = '/home/martin/deep-dereverb/data/train/clean/' # fijo
+    REVERB_PATH = '/home/martin/deep-dereverb/data/train/real/' # puede ser | real(x) | aug | gen |
+    PESOS = '/home/martin/deep-dereverb/model/ckpts/weights.03-0.003.hdf5' # por ahora real
+    CARPETA = 'resultados/' # puede ser | real(x) | aug | gen |
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
+
+if __name__ == '__main___': #pausado por ahora
     
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
     PESOS = '/home/martin/deep-dereverb/model/ckpts/reales/weights.10-0.010.hdf5' # por ahora real
     CARPETA = 'resultados/pesos_reales/real/' # puede ser | real(x) | aug | gen |
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/'
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/aug/' # puede ser | real | aug(x) | gen |
     PESOS = '/home/martin/deep-dereverb/model/ckpts/reales/weights.10-0.010.hdf5' # por ahora real
     CARPETA = 'resultados/pesos_reales/aug/' # puede ser | real | aug(x) | gen |
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/'
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
     PESOS = '/home/martin/deep-dereverb/model/ckpts/reales/weights.10-0.010.hdf5' # por ahora real
     CARPETA = 'resultados/pesos_reales/gen/' # puede ser | real | aug | gen(x)|
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |

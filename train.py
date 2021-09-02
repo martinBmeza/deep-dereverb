@@ -4,7 +4,7 @@ import numpy as np
 from model.data_loader import build_generators
 
 BATCH_SIZE = 8
-DATAFRAME = pd.read_pickle('data/train/dataset_aug.pkl')
+DATAFRAME = pd.read_pickle('data/train/dataset_reales.pkl')
 train_gen, val_gen = build_generators(DATAFRAME, BATCH_SIZE)
 
 # Defino el modelo

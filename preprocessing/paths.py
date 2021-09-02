@@ -12,7 +12,6 @@ def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
         audio_list.extend(glob.glob(search_path+file_type, recursive=True))
     return audio_list
 
-"""
 # TRAIN
 save_clean_path = '/home/martin/deep-dereverb/data/train/clean/'
 save_real_path = '/home/martin/deep-dereverb/data/train/real/'
@@ -51,8 +50,8 @@ train = {'save' : save, 'list' : lists}
 if __name__ == '__main__':
     with open('paths.pkl', 'wb') as f:
         pickle.dump(train, f)
-"""
 
+"""
 # TEST
 save_clean_path = '/home/martin/deep-dereverb/data/test/clean/'
 save_real_path = '/home/martin/deep-dereverb/data/test/real/'
@@ -93,3 +92,4 @@ test = {'save' : save, 'list' : lists}
 if __name__ == '__main__':
     with open('test_paths.pkl', 'wb') as f:
         pickle.dump(test, f)
+"""
