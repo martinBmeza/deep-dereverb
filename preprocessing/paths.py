@@ -51,7 +51,7 @@ if __name__ == '__main__':
     with open('paths.pkl', 'wb') as f:
         pickle.dump(train, f)
 
-"""
+
 # TEST
 save_clean_path = '/home/martin/deep-dereverb/data/test/clean/'
 save_real_path = '/home/martin/deep-dereverb/data/test/real/'
@@ -92,4 +92,4 @@ test = {'save' : save, 'list' : lists}
 if __name__ == '__main__':
     with open('test_paths.pkl', 'wb') as f:
         pickle.dump(test, f)
-"""
+

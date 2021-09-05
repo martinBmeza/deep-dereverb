@@ -108,8 +108,8 @@ def reverberacion(task):
 
     # Reverberacion
     speech = speech / np.max(abs(speech))
-    reverb = generar_reverb(speech, rir)
-    clean = speech
+    clean, reverb = generar_reverb(speech, rir)
+    #clean = speech
     ventana = int(32640)
     
     # Cortado y guardado
@@ -147,7 +147,10 @@ def generar_reverb(speech, rir):
     
     # Convoluciono. Obtengo audio con reverb
     reverb = fftconvolve(speech, rir)[:len(speech)]
-    return reverb
+    #early_reverb = fftconvolve(speech, rir[:320])[:len(speech)]
+    early_reverb = speech
+    
+    return early_reverb, reverb
 
 
 def audio_number(audio_list, winsize=32640):

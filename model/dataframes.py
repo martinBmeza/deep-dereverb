@@ -36,7 +36,6 @@ if __name__ == "__main__":
     print(len(dataframe))
     dataframe.to_pickle(SAVE_PATH)
 
-"""
     REVERB_PATH = '/home/martin/deep-dereverb/data/train/aug/'
     SAVE_PATH = '/home/martin/deep-dereverb/data/train/dataset_aug.pkl'
     dataframe = speech_fixdataframe(CLEAN_PATH, REVERB_PATH)
@@ -49,4 +48,3 @@ if __name__ == "__main__":
     print(len(dataframe))
     dataframe.to_pickle(SAVE_PATH)
 
-"""

@@ -42,13 +42,13 @@ def frame_to_raw(frame):
 #    return array
 
 def denormalise(array):
-    array_min = -65
+    array_min = -75
     array_max = 65
     array = (array * (array_max - array_min)) + array_min
     return array
 
 def normalise(array):                                                                                                           
-    array_min = -65
+    array_min = -75
     array_max = 65
     norm_array = (array - array_min) / (array_max - array_min + EPS)
     return norm_array 

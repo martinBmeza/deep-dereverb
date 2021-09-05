@@ -12,13 +12,13 @@ from tqdm import tqdm
 EPS = np.finfo(float).eps
 
 def denormalise(array):
-    array_min = -65
+    array_min = -75
     array_max = 65
     array = (array * (array_max - array_min)) + array_min
     return array
 
 def normalise(array):                                                                                                           
-    array_min = -65
+    array_min = -75
     array_max = 65
     norm_array = (array - array_min) / (array_max - array_min + EPS)
     return norm_array 
@@ -77,7 +77,7 @@ def test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA):
     SDR_dereverb = []
     ESTOI_dereverb = []
 
-    for clean_path, reverb_path in tqdm(zip(clean_list[:100], reverb_list), total=len(clean_list)):
+    for clean_path, reverb_path in tqdm(zip(clean_list[:1000], reverb_list), total=len(clean_list[:1000])):
         
         # read files
         fs = 16000
@@ -115,68 +115,70 @@ def test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA):
     np.save(CARPETA+'SDR_dereverb.npy', SDR_dereverb)
     np.save(CARPETA+'ESTOI_dereverb.npy', ESTOI_dereverb)
     return
-
-
+"""
 if __name__ == '__main__':
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/train/clean/' # fijo
-    REVERB_PATH = '/home/martin/deep-dereverb/data/train/real/' # puede ser | real(x) | aug | gen |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/weights.03-0.003.hdf5' # por ahora real
-    CARPETA = 'resultados/' # puede ser | real(x) | aug | gen |
-    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
-
-if __name__ == '__main___': #pausado por ahora
-    
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/reales/weights.10-0.010.hdf5' # por ahora real
-    CARPETA = 'resultados/pesos_reales/real/' # puede ser | real(x) | aug | gen |
+    PESOS = '/home/martin/deep-dereverb/model/ckpts/weights.03-0.0022.hdf5' # mezclado
+    CARPETA = 'resultados/valores/' # puede ser | real(x) | aug | gen |
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
+"""
+
+if __name__ == '__main__': #pausado por ahora
+
+    """ 
+    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
+    REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
+    PESOS = '/home/martin/deep-dereverb/model/ckpts/reales/weights.03-0.0028.hdf5' # por ahora real
+    CARPETA = 'resultados/valores/pesos_reales/real/' # puede ser | real(x) | aug | gen |
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/'
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/aug/' # puede ser | real | aug(x) | gen |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/reales/weights.10-0.010.hdf5' # por ahora real
-    CARPETA = 'resultados/pesos_reales/aug/' # puede ser | real | aug(x) | gen |
+    CARPETA = 'resultados/valores/pesos_reales/aug/' # puede ser | real | aug(x) | gen |
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/'
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/reales/weights.10-0.010.hdf5' # por ahora real
-    CARPETA = 'resultados/pesos_reales/gen/' # puede ser | real | aug | gen(x)|
+    CARPETA = 'resultados/valores/pesos_reales/gen/' # puede ser | real | aug | gen(x)|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/gen/weights.10-0.008.hdf5' # por ahora gen
+    PESOS = '/home/martin/deep-dereverb/model/ckpts/gen/weights.03-0.0024.hdf5' # por ahora gen
     CARPETA = 'resultados/valores/pesos_gen/real/' # puede ser | real(x) | aug | gen|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' 
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/aug/' # puede ser | real | aug(x) | gen |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/gen/weights.10-0.008.hdf5' # por ahora gen
     CARPETA = 'resultados/valores/pesos_gen/aug/' # puede ser | real | aug(x) | gen|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/'
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/gen/weights.10-0.008.hdf5' # por ahora gen
     CARPETA = 'resultados/valores/pesos_gen/gen/' # puede ser | real | aug | gen(x)|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
+    REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
+    PESOS = '/home/martin/deep-dereverb/model/ckpts/aug/weights.03-0.0015.hdf5' # por ahora aug
+    CARPETA = 'resultados/valores/pesos_aug/real/' # puede ser | real(x) | aug | gen|
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
+
+    REVERB_PATH = '/home/martin/deep-dereverb/data/test/aug/' # puede ser | real | aug(x) | gen |
+    CARPETA = 'resultados/valores/pesos_aug/aug/' # puede ser | real | aug(x) | gen|
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
+
+    REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
+    CARPETA = 'resultados/valores/pesos_aug/gen/' # puede ser | real | aug | gen(x)|
+    test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
+    """
+    #mezcla! 
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/aug/weights.10-0.006.hdf5' # por ahora aug
-    CARPETA = 'resultados/pesos_aug/real/' # puede ser | real(x) | aug | gen|
+    PESOS = '/home/martin/deep-dereverb/model/ckpts/weights.03-0.0022.hdf5' #mezclado
+    CARPETA = 'resultados/valores/mezcla/real/' # puede ser | real(x) | aug | gen|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/'
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/aug/' # puede ser | real | aug(x) | gen |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/aug/weights.10-0.006.hdf5' # por ahora aug
-    CARPETA = 'resultados/pesos_aug/aug/' # puede ser | real | aug(x) | gen|
+    CARPETA = 'resultados/valores/mezcla/aug/' # puede ser | real | aug(x) | gen|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
-    CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/'
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
-    PESOS = '/home/martin/deep-dereverb/model/ckpts/aug/weights.10-0.006.hdf5' # por ahora aug
-    CARPETA = 'resultados/pesos_aug/gen/' # puede ser | real | aug | gen(x)|
+    CARPETA = 'resultados/valores/mezcla/gen/' # puede ser | real | aug | gen(x)|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 

@@ -1,7 +1,7 @@
 import pickle 
 import numpy as np
 from processing import reverberacion, reverb_multiprocessing, clean_multiprocessing
-"""
+
 # TRAIN 
 with open('paths.pkl', 'rb') as f:
     paths = pickle.load(f)
@@ -14,22 +14,22 @@ reverb_multiprocessing(audio_list, rir_list, save)
 
 # Synthetic reverbs
 #audio_list = paths['list']['speech']
-#rir_list = paths['list']['gen']
-#save = paths['save']['gen']
-#reverb_multiprocessing(audio_list, rir_list, save)
+rir_list = paths['list']['gen']
+save = paths['save']['gen']
+reverb_multiprocessing(audio_list, rir_list, save)
 
 # Augmented reverbs
 #audio_list = paths['list']['speech']
-#rir_list = paths['list']['aug']
-#save = paths['save']['aug']
-#reverb_multiprocessing(audio_list, rir_list, save)
+rir_list = paths['list']['aug']
+save = paths['save']['aug']
+reverb_multiprocessing(audio_list, rir_list, save)
 
 # Clean speech 
-#audio_list = paths['list']['speech']
+audio_list = paths['list']['speech']
 save = paths['save']['clean']
 clean_multiprocessing(audio_list, save)
 
-"""
+
 # TEST
 
 with open('test_paths.pkl', 'rb') as f:
@@ -43,15 +43,15 @@ reverb_multiprocessing(audio_list, rir_list, save)
 
 # Generacion aug
 #audio_list = paths['list']['speech']
-#rir_list = paths['list']['aug']
-#save = paths['save']['aug']
-#reverb_multiprocessing(audio_list, rir_list, save)
+rir_list = paths['list']['aug']
+save = paths['save']['aug']
+reverb_multiprocessing(audio_list, rir_list, save)
 
 # Generacion gen 
 #audio_list = paths['list']['speech']
-#rir_list = paths['list']['gen']
-#save = paths['save']['gen']
-#reverb_multiprocessing(audio_list, rir_list, save)
+rir_list = paths['list']['gen']
+save = paths['save']['gen']
+reverb_multiprocessing(audio_list, rir_list, save)
 
 # Clean speech 
 #audio_list = paths['list']['speech']
