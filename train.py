@@ -5,7 +5,7 @@ from model.data_loader import build_generators
 
 BATCH_SIZE = 8
 
-#dataf_aug = pd.read_pickle('data/train/dataset_aug.pkl')
+dataf_aug = pd.read_pickle('data/train/dataset_aug.pkl')
 dataf_gen = pd.read_pickle('data/train/dataset_gen.pkl')
 dataf_real = pd.read_pickle('data/train/dataset_reales.pkl')
 DATAFRAME = pd.concat([dataf_aug, dataf_gen, dataf_real], ignore_index=True)

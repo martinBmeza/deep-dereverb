@@ -135,7 +135,7 @@ def autoencoder():
 
     dec = tfkl.UpSampling2D(size=(2,2), interpolation = 'nearest')(dec)
     dec = tfkl.Conv2D(1, kernel_size=(5,5), strides=1, padding='SAME', name='SALIDA_DEL_DECODER')(dec)
-    dec = tfkl.ReLU(max_value = 1.0)(dec) #pongo limite para predecir
+    dec = tfkl.ReLU()(dec)#max_value = 1.0)(dec) #pongo limite para predecir
     #dec = tfkl.Conv2DTranspose(1, kernel_size=(4,4), strides=2, padding='SAME', activation='tanh', name='CONV16')(dec)
 
     clean_predict = tfkl.multiply([dec, reverb], name = 'CLEAN_PREDICT')

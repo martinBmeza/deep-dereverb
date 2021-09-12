@@ -29,7 +29,7 @@ audio_list = paths['list']['speech']
 save = paths['save']['clean']
 clean_multiprocessing(audio_list, save)
 
-
+"""
 # TEST
 
 with open('test_paths.pkl', 'rb') as f:
@@ -57,4 +57,4 @@ reverb_multiprocessing(audio_list, rir_list, save)
 #audio_list = paths['list']['speech']
 save = paths['save']['clean']
 clean_multiprocessing(audio_list, save)
-
+"""

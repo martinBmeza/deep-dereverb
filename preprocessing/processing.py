@@ -147,8 +147,8 @@ def generar_reverb(speech, rir):
     
     # Convoluciono. Obtengo audio con reverb
     reverb = fftconvolve(speech, rir)[:len(speech)]
-    #early_reverb = fftconvolve(speech, rir[:320])[:len(speech)]
-    early_reverb = speech
+    early_reverb = fftconvolve(speech, rir[:32])[:len(speech)]
+    #early_reverb = speech
     
     return early_reverb, reverb
 
