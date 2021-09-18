@@ -1,0 +1,27 @@
+La curva de caida de nivel de una respuesta al impulso puede ser modelada de varias formas. Una de ellas es considerar la parte tardia de la respuesta como ruido blanco gaussiano con una envolvente exponencial decreciente dependiente de la frecuencia sumado por un determinado nivel de piso de ruido. [ECUACION DEL MODELO]. Dado este modelo, se pueden estimar las magnitudes de razon de caida, piso de ruido y nivel inicial. Esta estimacion se hace a partir de un metodo de optimizacion no lineal propuesto por [CITA] en donde se propone estimar una envolvente de energia de dos etapas parametrizada. 
+
+ESTIMACION DEL PISO DE RUIDO
+Uno de los puntos criticos del analisis de las respuestas al impulso es determinar el punto temporal en el cual la energia predominante corresponde al piso de ruido de la señal y no corresponde a informacion propia de la respuesta impulsiva del recinto. Para determinar este punto se sigue los lineamientos propuestos por Lundeby et. al. [REFERENCIA A LUNDEBY] 
+
+Paso 1: La respuesta al impulso al cuadrado es promediada en intervalos de tiempo locales de entre 10 y 50 ms para obtener una curva mas 'suave' (disminuir las variaciones instantaneas) sin perder las pendientes cortas
+
+Paso 2: Se hace una primera estimacion del piso de ruido. Para hacerlo se toma el segmento correspondiente al ultimo 10% del impulso.
+
+Paso 3: La pendiente de caida se estima usando una regresion lineal entre el intervalo de tiempo que contiene la respuesta entre el pico de 0 dB y el primer intervalo 5-10 dB por encima del ruido de fondo.
+
+Paso 4: Un punto provisorio de cruce se determina en la interseccion entre la pendiente de caida estimada y el nivel de piso de ruido
+
+Paso 5: Un nuevo intervalo de tiempo se calcula de acuerdo a la pendiente calculada, de manera que haya entre 3 y 10 intervalos por cada 10 dB de caida
+
+Paso 6: El impulso al cuadrado se vuelve a promediar localmente de acuerdo al nuevo intervalo temporal calculado previamente
+
+-----BUCLE---------
+
+Paso 7: El ruido de fondo es estimado nuevamente. El segmento a evaluar debe corresponder a 5-10 dB luego del punto de cruce (siguiendo la curva estimada previamente), o bien, un minimo del 10% de la señal total (en el caso de tener que optar por el 10% de nuevo, el resultado seria el mismo que antes, y el punto encontrado previamente seria el definitivo). 
+
+Paso 8: La pendiente de caida es estimada por un rango dinamico de entre 20 y 10 dB, empezando desde un punto 5-10 dB arriba del nivel de ruido.
+
+Paso 9: Se encuentra un nuevo punto de cruce
+
+-------------------
+

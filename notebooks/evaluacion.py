@@ -53,7 +53,7 @@ def normalise(array):
     norm_array = (array - array_min) / (array_max - array_min + EPS)
     return norm_array 
 
-def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC')):
+def get_audio_list(path, file_types = ('.wav', '.WAV', '.flac', '.FLAC', '.npy')):
     search_path = path + '/**/*'
     audio_list = []
     for file_type in file_types:

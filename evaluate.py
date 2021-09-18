@@ -54,6 +54,23 @@ def frame_to_raw(frame):
     return frame_raw
 
 
+def frame_to_raw_f(frame, reverb):
+    stft_reverb = librosa.stft(reverb, n_fft=512, hop_length=128)#[:-1,:]# Descarto altas frecuencias
+    pha_reverb = np.angle(stft_reverb)
+
+
+    frame = denormalise(frame)
+    #Escala logaritmica
+    frame_lin = librosa.db_to_amplitude(frame)
+
+    #Necesito agregar el bin de frecuencia que le saque.
+    frame_lin_pad = np.pad(frame_lin,((0,1),(0,0)), 'minimum') #Ojoooooo!
+
+    stft_build = frame_lin_pad * np.exp(1j*pha_reverb)
+    recover = librosa.istft(stft_build, hop_length=128, win_length=512)
+    return recover
+
+
 def get_metricas(clean, reverb, fs):
     SRMR = srmr.srmr(reverb, fs)[0]
     SDR, _, _, _ = mir_eval.separation.bss_eval_sources(clean, reverb, compute_permutation=True)
@@ -77,7 +94,7 @@ def test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA):
     SDR_dereverb = []
     ESTOI_dereverb = []
 
-    for clean_path, reverb_path in tqdm(zip(clean_list[:1000], reverb_list), total=len(clean_list[:1000])):
+    for clean_path, reverb_path in tqdm(zip(clean_list[:100], reverb_list), total=len(clean_list[:100])):
         
         # read files
         fs = 16000
@@ -91,9 +108,13 @@ def test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA):
         espectro_out = modelo.predict([espectro_in.reshape(1,256,256)])
         espectro_out = espectro_out.reshape(256,256)
 	
-        reverb = frame_to_raw(espectro_in)
-        dereverb = frame_to_raw(espectro_out)
-        clean = frame_to_raw(espectro_target)
+        #reverb = frame_to_raw(espectro_in)
+        #dereverb = frame_to_raw(espectro_out)
+        #clean = frame_to_raw(espectro_target)
+        
+        reverb = frame_to_raw_f(espectro_in, reverb)
+        dereverb = frame_to_raw_f(espectro_out, reverb)
+        clean = frame_to_raw_f(espectro_target, clean)
 
         # get metrics for clean-reverb
         srmr, sdr, estoi = get_metricas(clean, reverb, fs)
@@ -124,7 +145,7 @@ if __name__ == '__main__':
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 """
 
-if __name__ == '__main__': #pausado por ahora
+if __name__ == '__main__': 
 
     """ 
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
@@ -166,11 +187,11 @@ if __name__ == '__main__': #pausado por ahora
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
     CARPETA = 'resultados/valores/pesos_aug/gen/' # puede ser | real | aug | gen(x)|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
-
+    """
     #mezcla! 
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
-    ###PESOS = '/home/martin/deep-dereverb/model/ckpts/weights.03-0.0022.hdf5' #mezclado
+    PESOS = '/home/martin/deep-dereverb/model/ckpts/mezcla/weights.03-0.0022.hdf5' #mezclado
     CARPETA = 'resultados/valores/mezcla/real/' # puede ser | real(x) | aug | gen|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
 
@@ -181,8 +202,8 @@ if __name__ == '__main__': #pausado por ahora
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
     CARPETA = 'resultados/valores/mezcla/gen/' # puede ser | real | aug | gen(x)|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
-    """
-
+    
+    
     #real+gen
     CLEAN_PATH = '/home/martin/deep-dereverb/data/test/clean/' # fijo
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/real/' # puede ser | real(x) | aug | gen |
@@ -212,5 +233,4 @@ if __name__ == '__main__': #pausado por ahora
     REVERB_PATH = '/home/martin/deep-dereverb/data/test/gen/' # puede ser | real | aug | gen(x) |
     CARPETA = 'resultados/valores/real+aug/gen/' # puede ser | real | aug | gen(x)|
     test(CLEAN_PATH, REVERB_PATH, PESOS, CARPETA)
- 
-
+    
