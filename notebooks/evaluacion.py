@@ -33,6 +33,9 @@ def frame_to_raw(frame):
     return frame_raw
 
 
+
+
+
 #def normalise(array):
 #        norm_array = (array - array.min()) / (array.max() - array.min() + EPS)
 #        return norm_array, array.min(), array.max()
